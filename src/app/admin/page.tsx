@@ -1,0 +1,1046 @@
+"use client";
+
+import { useState, useEffect, useCallback, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import {
+  Save, CheckCircle, Plus, Trash2, ExternalLink,
+  Users, ClipboardCheck, BookOpenCheck, FolderOpen,
+  LayoutDashboard, ScrollText, PlayCircle, Trophy,
+  ChevronDown, ChevronUp, BarChart2, ImageIcon,
+} from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import styles from "./admin.module.css";
+
+// ─── Types ───────────────────────────────────────────────
+interface Participant { id?: string; name: string; email: string; sort_order: number; }
+interface TaskItem    { id?: string; task_order: number; number: string; title: string; phase: string; }
+interface MateriItem  {
+  id?: string; session_no: number; number_label: string; title: string; category: string;
+  materi_url: string; playlist_url: string; youtube_id: string; topics: string[];
+}
+interface QuizScore   { participant: string; session_key: number; score: number; }
+interface QuizQuestion {
+  id?: string; session_key: number; sort_order: number;
+  question_text: string; options: string[]; correct_answer: number; image_url: string;
+}
+interface Submission  { id: string; participant: string; task_id: number; task_number: string; task_title: string; url: string; submitted_at: string; }
+interface FinalProject{ participant: string; url: string; submitted_at: string; }
+
+// ─── Quiz Session Labels ──────────────────────────────────
+const QUIZ_SESSIONS = [
+  "Sesi 1 & 2: Onboarding & Get to Know WebGIS",
+  "Sesi 3: GIS Fundamental",
+  "Sesi 4: Location Value with GEO MAPID",
+  "Sesi 5: Introduction to VS Code, Git, HTML & CSS",
+  "Sesi 6: HTML and CSS Part 2 — Tailwind & Layouting",
+  "Sesi 7: JavaScript Part 1 — Fundamentals",
+  "Sesi 8 & 9: JavaScript Part 2 & Modern JS",
+  "Sesi 10: Introduction to WebMap & MapLibre Part 1",
+  "Sesi 11: Introduction to WebMap & MapLibre Part 2",
+  "Sesi 12: Introduction to WebMap & MapLibre Part 3",
+  "Sesi 13: Feature Implementation Part 1 — Heatmap",
+  "Sesi 14: Feature Implementation Part 2 — Radius",
+  "Sesi 14: Feature Implementation Part 3 — Isochrone",
+  "Sesi 15: WebGIS Refinement and Deployment",
+  "Sesi 16 & 17: Python for Spatial Data (Bonus)",
+];
+
+const CATEGORY_COLOR: Record<string, string> = {
+  Concept:  "#6366f1",
+  Frontend: "#0ea5e9",
+  WebMap:   "#10b981",
+  Python:   "#f59e0b",
+};
+
+// ─── Main Router ──────────────────────────────────────────
+function AdminContent() {
+  const searchParams = useSearchParams();
+  const tab = searchParams.get("tab") || "overview";
+  return (
+    <div className={styles.page}>
+      {tab === "overview"  && <TabOverview />}
+      {tab === "tatib"     && <TabTatib />}
+      {tab === "absensi"   && <TabAbsensi />}
+      {tab === "posttest"  && <TabPostTest />}
+      {tab === "tugas"     && <TabTugas />}
+      {tab === "materi"    && <TabMateri />}
+      {tab === "final"     && <TabFinal />}
+    </div>
+  );
+}
+
+export default function AdminPage() {
+  return (
+    <Suspense fallback={<div className={styles.loading}>Memuat Admin Panel...</div>}>
+      <AdminContent />
+    </Suspense>
+  );
+}
+
+// ════════════════════════════════════════════════════════
+// TAB: OVERVIEW
+// ════════════════════════════════════════════════════════
+function TabOverview() {
+  const [participants, setParticipants] = useState<Participant[]>([]);
+  const [stats, setStats] = useState({ participants: 0, attendances: 0, submissions: 0, quizzes: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      const [{ data: p }, { count: a }, { count: t }, { count: q }] = await Promise.all([
+        supabase.from("config_participants").select("*").order("sort_order"),
+        supabase.from("attendance").select("*", { count: "exact", head: true }).eq("attended", true),
+        supabase.from("task_submissions").select("*", { count: "exact", head: true }),
+        supabase.from("quiz_scores").select("*", { count: "exact", head: true }),
+      ]);
+      setParticipants((p as Participant[]) || []);
+      setStats({ participants: p?.length || 0, attendances: a || 0, submissions: t || 0, quizzes: q || 0 });
+      setLoading(false);
+    }
+    load();
+  }, []);
+
+  if (loading) return <div className={styles.loading}>Memuat data...</div>;
+
+  const statCards = [
+    { label: "Total Peserta",       value: stats.participants, icon: <Users size={18} />,         bg: "#eff6ff", color: "#3b82f6" },
+    { label: "Absensi Hadir",       value: stats.attendances,  icon: <ClipboardCheck size={18} />, bg: "#f0fdf4", color: "#22c55e" },
+    { label: "Tugas Dikumpulkan",   value: stats.submissions,  icon: <FolderOpen size={18} />,     bg: "#fefce8", color: "#f59e0b" },
+    { label: "Jawaban Post Test",   value: stats.quizzes,      icon: <BookOpenCheck size={18} />,  bg: "#fdf4ff", color: "#a855f7" },
+  ];
+
+  return (
+    <>
+      <div className={styles.panelHeader}>
+        <div>
+          <h2><LayoutDashboard size={20} /> Dashboard</h2>
+          <p>Ringkasan data program WebGIS Bootcamp Batch 3</p>
+        </div>
+      </div>
+      <div className={styles.statsRow}>
+        {statCards.map(s => (
+          <div key={s.label} className={styles.statCard}>
+            <div className={styles.statIcon} style={{ background: s.bg, color: s.color }}>{s.icon}</div>
+            <div className={styles.statValue}>{s.value}</div>
+            <div className={styles.statLabel}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+      <div className={styles.card}>
+        <div className={styles.cardTitle}><Users size={15} /> Daftar Peserta</div>
+        <table className={styles.summaryTable}>
+          <thead><tr><th>#</th><th>Nama</th><th>Email</th><th>Status</th></tr></thead>
+          <tbody>
+            {participants.map((p, i) => (
+              <tr key={p.name}>
+                <td style={{ color: "#94a3b8", fontWeight: 700, fontSize: 12 }}>{i + 1}</td>
+                <td style={{ fontWeight: 700 }}>{p.name}</td>
+                <td style={{ fontSize: 12, color: "#64748b" }}>{p.email || "—"}</td>
+                <td><span className={`${styles.statusBadge} ${styles.statusActive}`}>Aktif</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  );
+}
+
+// ════════════════════════════════════════════════════════
+// TAB: TATA TERTIB & KONTAK
+// ════════════════════════════════════════════════════════
+function TabTatib() {
+  const [cfg, setCfg] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase.from("site_config").select("key,value").then(({ data }) => {
+      const map: Record<string, string> = {};
+      (data || []).forEach((r: { key: string; value: string }) => { map[r.key] = r.value; });
+      setCfg(map);
+      setLoading(false);
+    });
+  }, []);
+
+  const set = (key: string, value: string) => setCfg(prev => ({ ...prev, [key]: value }));
+
+  const handleSave = async () => {
+    setSaving(true);
+    const entries = Object.entries(cfg).map(([key, value]) => ({ key, value, updated_at: new Date().toISOString() }));
+    await supabase.from("site_config").upsert(entries, { onConflict: "key" });
+    setSaving(false); setSaved(true); setTimeout(() => setSaved(false), 2500);
+  };
+
+  if (loading) return <div className={styles.loading}>Memuat konfigurasi...</div>;
+
+  return (
+    <>
+      <div className={styles.panelHeader}>
+        <div>
+          <h2><ScrollText size={20} /> Tata Tertib & Kontak</h2>
+          <p>Edit ketentuan akademik, fasilitator, dan link platform</p>
+        </div>
+        <div className={styles.rowActions}>
+          {saved && <span className={styles.savedMsg}><CheckCircle size={14} /> Tersimpan</span>}
+          <button className={styles.saveBtn} onClick={handleSave} disabled={saving}>
+            <Save size={14} /> {saving ? "Menyimpan..." : "Simpan Semua"}
+          </button>
+        </div>
+      </div>
+
+      <div className={styles.card}>
+        <div className={styles.cardTitle}><ScrollText size={14} /> Tata Tertib & Ketentuan Akademik</div>
+        {[1,2,3,4].map(n => (
+          <div key={n} className={styles.ruleCard}>
+            <div className={styles.ruleHeader}>
+              <span className={styles.ruleNum}>{n}</span>
+              <div style={{ flex: 1 }}>
+                <input className={styles.input} placeholder={`Judul ketentuan ${n}`}
+                  value={cfg[`tata_tertib_${n}_title`] || ""} onChange={e => set(`tata_tertib_${n}_title`, e.target.value)} />
+              </div>
+            </div>
+            <textarea className={styles.textarea} placeholder="Deskripsi ketentuan..."
+              value={cfg[`tata_tertib_${n}_desc`] || ""} onChange={e => set(`tata_tertib_${n}_desc`, e.target.value)} />
+          </div>
+        ))}
+      </div>
+
+      <div className={styles.card}>
+        <div className={styles.cardTitle}><Users size={14} /> Fasilitator</div>
+        <div className={styles.formGrid}>
+          <div className={styles.field}><label>Nama Fasilitator 1</label>
+            <input className={styles.input} value={cfg["fasilitator_1_name"] || ""} onChange={e => set("fasilitator_1_name", e.target.value)} placeholder="Farah" /></div>
+          <div className={styles.field}><label>No. WhatsApp Fasilitator 1</label>
+            <input className={styles.input} value={cfg["fasilitator_1_phone"] || ""} onChange={e => set("fasilitator_1_phone", e.target.value)} placeholder="628xxx" /></div>
+          <div className={styles.field}><label>Nama Fasilitator 2</label>
+            <input className={styles.input} value={cfg["fasilitator_2_name"] || ""} onChange={e => set("fasilitator_2_name", e.target.value)} placeholder="Rofi" /></div>
+          <div className={styles.field}><label>No. WhatsApp Fasilitator 2</label>
+            <input className={styles.input} value={cfg["fasilitator_2_phone"] || ""} onChange={e => set("fasilitator_2_phone", e.target.value)} placeholder="628xxx" /></div>
+        </div>
+      </div>
+
+      <div className={styles.card}>
+        <div className={styles.cardTitle}><ExternalLink size={14} /> Link Platform</div>
+        <div className={styles.formGrid}>
+          <div className={styles.field}><label>Link Discord</label>
+            <input className={styles.input} value={cfg["discord_link"] || ""} onChange={e => set("discord_link", e.target.value)} placeholder="https://discord.gg/..." /></div>
+          <div className={styles.field}><label>Link Zoom</label>
+            <input className={styles.input} value={cfg["zoom_link"] || ""} onChange={e => set("zoom_link", e.target.value)} placeholder="https://zoom.us/j/..." /></div>
+          <div className={styles.field}><label>Zoom Meeting ID</label>
+            <input className={styles.input} value={cfg["zoom_meeting_id"] || ""} onChange={e => set("zoom_meeting_id", e.target.value)} placeholder="882 1928 3192" /></div>
+          <div className={styles.field}><label>Zoom Passcode</label>
+            <input className={styles.input} value={cfg["zoom_passcode"] || ""} onChange={e => set("zoom_passcode", e.target.value)} placeholder="mapidacademy" /></div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ════════════════════════════════════════════════════════
+// TAB: ABSENSI
+// ════════════════════════════════════════════════════════
+function TabAbsensi() {
+  const [participants, setParticipants] = useState<Participant[]>([]);
+  const [grid, setGrid]                 = useState<Record<string, boolean>>({});
+  const [attendanceLink, setAttendanceLink] = useState("");
+  const [totalSessions, setTotalSessions]   = useState(17);
+  const [savingGrid, setSavingGrid]         = useState(false);
+  const [savingPeserta, setSavingPeserta]   = useState(false);
+  const [savedPeserta, setSavedPeserta]     = useState(false);
+  const [savedLink, setSavedLink]           = useState(false);
+  const [loading, setLoading]               = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      const [{ data: p }, { data: a }, { data: cfg }] = await Promise.all([
+        supabase.from("config_participants").select("*").order("sort_order"),
+        supabase.from("attendance").select("participant,session_no,attended"),
+        supabase.from("site_config").select("key,value").in("key", ["attendance_link","total_absensi_sessions"]),
+      ]);
+      setParticipants((p as Participant[]) || []);
+      const map: Record<string, boolean> = {};
+      (a || []).forEach((r: { participant: string; session_no: number; attended: boolean }) => {
+        map[`${r.participant}__${r.session_no}`] = r.attended;
+      });
+      setGrid(map);
+      const cfgMap: Record<string, string> = {};
+      (cfg || []).forEach((r: { key: string; value: string }) => { cfgMap[r.key] = r.value; });
+      setAttendanceLink(cfgMap["attendance_link"] || "");
+      setTotalSessions(Number(cfgMap["total_absensi_sessions"] || 17));
+      setLoading(false);
+    }
+    load();
+  }, []);
+
+  const toggle = useCallback(async (participant: string, session_no: number) => {
+    const key = `${participant}__${session_no}`;
+    const next = !grid[key];
+    setGrid(prev => ({ ...prev, [key]: next }));
+    await supabase.from("attendance").upsert({ participant, session_no, attended: next }, { onConflict: "participant,session_no" });
+  }, [grid]);
+
+  const handleSaveLink = async () => {
+    setSavingGrid(true);
+    await supabase.from("site_config").upsert([
+      { key: "attendance_link", value: attendanceLink, updated_at: new Date().toISOString() },
+      { key: "total_absensi_sessions", value: String(totalSessions), updated_at: new Date().toISOString() },
+    ], { onConflict: "key" });
+    setSavingGrid(false); setSavedLink(true); setTimeout(() => setSavedLink(false), 2500);
+  };
+
+  const addPeserta = () => setParticipants(prev => [
+    ...prev, { name: "", email: "", sort_order: (prev[prev.length - 1]?.sort_order || 0) + 1 }
+  ]);
+
+  const updatePeserta = (i: number, field: "name" | "email", val: string) =>
+    setParticipants(prev => prev.map((p, idx) => idx === i ? { ...p, [field]: val } : p));
+
+  const removePeserta = (i: number) => setParticipants(prev => prev.filter((_, idx) => idx !== i));
+
+  const handleSavePeserta = async () => {
+    setSavingPeserta(true);
+    await supabase.from("config_participants").delete().neq("sort_order", -999);
+    const rows = participants.filter(p => p.name.trim()).map((p, i) => ({
+      name: p.name.trim(), email: p.email, sort_order: i + 1
+    }));
+    if (rows.length) await supabase.from("config_participants").insert(rows);
+    setSavingPeserta(false); setSavedPeserta(true); setTimeout(() => setSavedPeserta(false), 2500);
+  };
+
+  if (loading) return <div className={styles.loading}>Memuat data absensi...</div>;
+
+  const sessions = Array.from({ length: totalSessions }, (_, i) => i + 1);
+  const names = participants.filter(p => p.name.trim()).map(p => p.name);
+
+  return (
+    <>
+      <div className={styles.panelHeader}>
+        <div>
+          <h2><ClipboardCheck size={20} /> Absensi</h2>
+          <p>Kelola daftar peserta, jumlah sesi, link absensi, dan toggle kehadiran</p>
+        </div>
+      </div>
+
+      {/* Daftar Peserta */}
+      <div className={styles.card}>
+        <div className={styles.cardTitle}><Users size={14} /> Daftar Peserta</div>
+        <div className={styles.listCard}>
+          <div className={styles.listRow} style={{ gridTemplateColumns: "24px 1fr 1fr auto", background: "#f8fafc" }}>
+            <span className={styles.listNum}>#</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8" }}>NAMA</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8" }}>EMAIL</span>
+            <span />
+          </div>
+          {participants.map((p, i) => (
+            <div key={i} className={`${styles.listRow} ${styles.listRowParticipant}`}>
+              <span className={styles.listNum}>{i + 1}</span>
+              <input className={styles.input} value={p.name} onChange={e => updatePeserta(i, "name", e.target.value)} placeholder="Nama peserta" style={{ fontSize: 12.5 }} />
+              <input className={styles.input} value={p.email} onChange={e => updatePeserta(i, "email", e.target.value)} placeholder="email@..." style={{ fontSize: 12.5 }} />
+              <button className={styles.deleteBtn} onClick={() => removePeserta(i)}><Trash2 size={14} /></button>
+            </div>
+          ))}
+        </div>
+        <button className={styles.addRowBtn} onClick={addPeserta}><Plus size={14} /> Tambah Peserta</button>
+        <div className={styles.rowActions}>
+          {savedPeserta && <span className={styles.savedMsg}><CheckCircle size={14} /> Tersimpan</span>}
+          <button className={styles.saveBtn} onClick={handleSavePeserta} disabled={savingPeserta}>
+            <Save size={14} /> {savingPeserta ? "Menyimpan..." : "Simpan Daftar Peserta"}
+          </button>
+        </div>
+      </div>
+
+      {/* Atur Sesi & Link */}
+      <div className={styles.card}>
+        <div className={styles.cardTitle}><ClipboardCheck size={14} /> Pengaturan Sesi & Link Absensi</div>
+        <div className={styles.field}>
+          <label>Jumlah Pertemuan / Sesi (1–17)</label>
+          <div className={styles.sliderWrap}>
+            <input type="range" min={1} max={17} value={totalSessions}
+              onChange={e => setTotalSessions(Number(e.target.value))} className={styles.sliderInput} />
+            <div className={styles.sliderValue}>{totalSessions}</div>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 10, alignItems: "flex-end" }}>
+          <div className={styles.field} style={{ flex: 1 }}>
+            <label>URL Google Form Absensi</label>
+            <input className={styles.input} value={attendanceLink} onChange={e => setAttendanceLink(e.target.value)} placeholder="https://forms.gle/..." />
+          </div>
+          <button className={styles.saveBtn} onClick={handleSaveLink} disabled={savingGrid} style={{ marginBottom: 1 }}>
+            <Save size={14} /> {savingGrid ? "..." : "Simpan"}
+          </button>
+          {savedLink && <span className={styles.savedMsg}><CheckCircle size={13} /> Tersimpan</span>}
+        </div>
+        {attendanceLink && (
+          <a className={styles.linkBtn} href={attendanceLink} target="_blank" rel="noreferrer">
+            <ExternalLink size={12} /> Buka Form Absensi
+          </a>
+        )}
+      </div>
+
+      {/* Grid Kehadiran */}
+      <div className={styles.card} style={{ padding: "20px 16px" }}>
+        <div className={styles.cardTitle}><ClipboardCheck size={14} /> Grid Kehadiran — Klik Sel untuk Toggle</div>
+        <div className={styles.attendanceWrap}>
+          <table className={styles.attendanceGrid}>
+            <thead>
+              <tr>
+                <th>Peserta</th>
+                {sessions.map(s => <th key={s}>S{s}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {names.map(p => (
+                <tr key={p}>
+                  <td>{p}</td>
+                  {sessions.map(s => {
+                    const attended = grid[`${p}__${s}`];
+                    return (
+                      <td key={s}>
+                        <button
+                          className={`${styles.attendanceCell} ${attended ? styles.attendanceOn : styles.attendanceOff}`}
+                          onClick={() => toggle(p, s)}
+                          title={`${p} — Sesi ${s}`}
+                        >{attended ? "✓" : "·"}</button>
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ════════════════════════════════════════════════════════
+// TAB: POST TEST — Quiz Editor
+// ════════════════════════════════════════════════════════
+function TabPostTest() {
+  const [totalSessions, setTotalSessions] = useState(1);
+  const [allQuestions, setAllQuestions]   = useState<QuizQuestion[]>([]);
+  const [openSession, setOpenSession]     = useState<number | null>(null);
+  const [savingCfg, setSavingCfg]         = useState(false);
+  const [savedCfg, setSavedCfg]           = useState(false);
+  const [savingQ, setSavingQ]             = useState<number | null>(null);
+  const [savedQ, setSavedQ]               = useState<number | null>(null);
+  const [scores, setScores]               = useState<QuizScore[]>([]);
+  const [participants, setParticipants]   = useState<string[]>([]);
+  const [loading, setLoading]             = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      const [{ data: cfg }, { data: q }, { data: s }, { data: p }] = await Promise.all([
+        supabase.from("post_test_config").select("total_sessions").limit(1).single(),
+        supabase.from("quiz_questions").select("*").order("session_key").order("sort_order"),
+        supabase.from("quiz_scores").select("participant,session_key,score"),
+        supabase.from("config_participants").select("name").order("sort_order"),
+      ]);
+      if (cfg) setTotalSessions((cfg as { total_sessions: number }).total_sessions || 1);
+      const qs = (q || []).map((r: QuizQuestion & { options: unknown }) => ({
+        ...r, options: Array.isArray(r.options) ? r.options : ["","","",""],
+      }));
+      setAllQuestions(qs as QuizQuestion[]);
+      setScores((s as QuizScore[]) || []);
+      setParticipants((p || []).map((x: { name: string }) => x.name));
+      setLoading(false);
+    }
+    load();
+  }, []);
+
+  const handleSaveCfg = async () => {
+    setSavingCfg(true);
+    const { data: existing } = await supabase.from("post_test_config").select("id").limit(1).single();
+    if (existing) {
+      await supabase.from("post_test_config").update({ total_sessions: totalSessions, updated_at: new Date().toISOString() }).eq("id", (existing as { id: string }).id);
+    } else {
+      await supabase.from("post_test_config").insert({ total_sessions: totalSessions });
+    }
+    setSavingCfg(false); setSavedCfg(true); setTimeout(() => setSavedCfg(false), 2500);
+  };
+
+  const getSessionQuestions = (key: number) =>
+    allQuestions.filter(q => q.session_key === key).sort((a, b) => a.sort_order - b.sort_order);
+
+  const addQuestion = (key: number) => {
+    const existing = getSessionQuestions(key);
+    const newQ: QuizQuestion = {
+      session_key: key, sort_order: existing.length,
+      question_text: "", options: ["","","",""], correct_answer: 0, image_url: "",
+    };
+    setAllQuestions(prev => [...prev, newQ]);
+  };
+
+  const updateQuestion = (key: number, qi: number, field: keyof QuizQuestion, val: string | number | string[]) => {
+    setAllQuestions(prev => {
+      const sessionQs = getSessionQuestionsFrom(prev, key);
+      const updated = sessionQs.map((q, i) => i === qi ? { ...q, [field]: val } : q);
+      return [...prev.filter(q => q.session_key !== key), ...updated];
+    });
+  };
+
+  const updateOption = (key: number, qi: number, oi: number, val: string) => {
+    setAllQuestions(prev => {
+      const sessionQs = getSessionQuestionsFrom(prev, key);
+      const updated = sessionQs.map((q, i) => {
+        if (i !== qi) return q;
+        const opts = [...q.options];
+        opts[oi] = val;
+        return { ...q, options: opts };
+      });
+      return [...prev.filter(q => q.session_key !== key), ...updated];
+    });
+  };
+
+  const removeQuestion = (key: number, qi: number) => {
+    setAllQuestions(prev => {
+      const sessionQs = getSessionQuestionsFrom(prev, key).filter((_, i) => i !== qi);
+      return [...prev.filter(q => q.session_key !== key), ...sessionQs];
+    });
+  };
+
+  const handleSaveSession = async (key: number) => {
+    setSavingQ(key);
+    const sessionQs = getSessionQuestions(key);
+    await supabase.from("quiz_questions").delete().eq("session_key", key);
+    if (sessionQs.length) {
+      const rows = sessionQs.map((q, i) => ({
+        session_key: key, sort_order: i,
+        question_text: q.question_text,
+        options: q.options,
+        correct_answer: q.correct_answer,
+        image_url: q.image_url || "",
+      }));
+      await supabase.from("quiz_questions").insert(rows);
+    }
+    setSavingQ(null); setSavedQ(key); setTimeout(() => setSavedQ(null), 2500);
+  };
+
+  const bestScore = (name: string, key: number) => {
+    const attempts = scores.filter(s => s.participant === name && s.session_key === key);
+    if (!attempts.length) return null;
+    return Math.max(...attempts.map(a => a.score));
+  };
+
+  if (loading) return <div className={styles.loading}>Memuat data post test...</div>;
+
+  const activeSessions = Array.from({ length: totalSessions }, (_, i) => i + 1);
+
+  return (
+    <>
+      <div className={styles.panelHeader}>
+        <div>
+          <h2><BookOpenCheck size={20} /> Post Test</h2>
+          <p>Atur jumlah sesi aktif dan buat/edit soal post test per sesi</p>
+        </div>
+      </div>
+
+      {/* Config sesi */}
+      <div className={styles.card}>
+        <div className={styles.cardTitle}><BookOpenCheck size={14} /> Jumlah Sesi Post Test Aktif</div>
+        <div className={styles.sliderWrap}>
+          <input type="range" min={1} max={15} value={totalSessions}
+            onChange={e => setTotalSessions(Number(e.target.value))} className={styles.sliderInput} />
+          <div className={styles.sliderValue}>{totalSessions}</div>
+        </div>
+        <div className={styles.sessionTagsWrap}>
+          {QUIZ_SESSIONS.map((_, i) => (
+            <span key={i} className={`${styles.sessionTag} ${i < totalSessions ? styles.sessionTagActive : styles.sessionTagInactive}`}>
+              Sesi {i + 1}
+            </span>
+          ))}
+        </div>
+        <div className={styles.rowActions}>
+          {savedCfg && <span className={styles.savedMsg}><CheckCircle size={14} /> Tersimpan</span>}
+          <button className={styles.saveBtn} onClick={handleSaveCfg} disabled={savingCfg}>
+            <Save size={14} /> {savingCfg ? "Menyimpan..." : "Simpan Konfigurasi"}
+          </button>
+        </div>
+      </div>
+
+      {/* Editor soal per sesi */}
+      {activeSessions.map(key => {
+        const sessionQs = getSessionQuestions(key);
+        const isOpen = openSession === key;
+        return (
+          <div key={key} className={styles.materiCard}>
+            <div
+              className={`${styles.materiCardHead} ${isOpen ? styles.materiCardHeadOpen : ""}`}
+              onClick={() => setOpenSession(isOpen ? null : key)}
+            >
+              <div className={styles.materiCardHeadLeft}>
+                <span className={styles.sessionNumBadge}>Sesi {key}</span>
+                <span className={styles.materiCardTitle}>{QUIZ_SESSIONS[key - 1]}</span>
+                <span style={{ fontSize: 11, color: "#94a3b8", marginLeft: 4 }}>
+                  {sessionQs.length} soal
+                </span>
+              </div>
+              {isOpen ? <ChevronUp size={16} color="#94a3b8" /> : <ChevronDown size={16} color="#94a3b8" />}
+            </div>
+
+            {isOpen && (
+              <div className={styles.materiCardBody}>
+                {sessionQs.map((q, qi) => (
+                  <div key={qi} className={styles.questionCard}>
+                    <div className={styles.questionHeader}>
+                      <span className={styles.questionNum}>Soal {qi + 1}</span>
+                      <button className={styles.deleteBtn} onClick={() => removeQuestion(key, qi)} title="Hapus soal">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+
+                    <div className={styles.field}>
+                      <label>Pertanyaan</label>
+                      <textarea className={styles.textarea} rows={2}
+                        value={q.question_text}
+                        onChange={e => updateQuestion(key, qi, "question_text", e.target.value)}
+                        placeholder="Tulis pertanyaan di sini..." />
+                    </div>
+
+                    <div className={styles.field}>
+                      <label><ImageIcon size={11} style={{ display:"inline", marginRight:4 }} />URL Gambar (opsional)</label>
+                      <input className={styles.input} value={q.image_url}
+                        onChange={e => updateQuestion(key, qi, "image_url", e.target.value)}
+                        placeholder="https://..." />
+                    </div>
+
+                    <div className={styles.field}>
+                      <label>Pilihan Jawaban — pilih yang benar</label>
+                      <div className={styles.optionsGrid}>
+                        {q.options.map((opt, oi) => (
+                          <div key={oi} className={`${styles.optionRow} ${q.correct_answer === oi ? styles.optionRowCorrect : ""}`}>
+                            <button
+                              className={`${styles.correctBtn} ${q.correct_answer === oi ? styles.correctBtnActive : ""}`}
+                              onClick={() => updateQuestion(key, qi, "correct_answer", oi)}
+                              title="Tandai sebagai jawaban benar"
+                            >
+                              {q.correct_answer === oi ? "✓" : String.fromCharCode(65 + oi)}
+                            </button>
+                            <input
+                              className={styles.optionInput}
+                              value={opt}
+                              onChange={e => updateOption(key, qi, oi, e.target.value)}
+                              placeholder={`Pilihan ${String.fromCharCode(65 + oi)}...`}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                <button className={styles.addRowBtn} onClick={() => addQuestion(key)}>
+                  <Plus size={14} /> Tambah Soal
+                </button>
+
+                <div className={styles.rowActions}>
+                  {savedQ === key && <span className={styles.savedMsg}><CheckCircle size={14} /> Tersimpan</span>}
+                  <button className={styles.saveBtn} onClick={() => handleSaveSession(key)} disabled={savingQ === key}>
+                    <Save size={14} /> {savingQ === key ? "Menyimpan..." : "Simpan Soal Sesi Ini"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      {/* Rekapitulasi Skor */}
+      <div className={styles.card} style={{ padding: "20px 16px" }}>
+        <div className={styles.cardTitle}><BarChart2 size={14} /> Rekapitulasi Skor Post Test</div>
+        <div className={styles.scoresWrap}>
+          <table className={styles.scoresTable}>
+            <thead>
+              <tr>
+                <th>Peserta</th>
+                {activeSessions.map(i => <th key={i}>S{i}</th>)}
+                <th>Rata-rata</th>
+              </tr>
+            </thead>
+            <tbody>
+              {participants.map(p => {
+                const ss = activeSessions.map(i => bestScore(p, i));
+                const filled = ss.filter(s => s !== null) as number[];
+                const avg = filled.length ? Math.round(filled.reduce((a, b) => a + b, 0) / filled.length) : null;
+                return (
+                  <tr key={p}>
+                    <td>{p}</td>
+                    {ss.map((score, i) => (
+                      <td key={i}>
+                        {score === null
+                          ? <span className={styles.scoreEmpty}>—</span>
+                          : <span className={`${styles.scorePill} ${score >= 80 ? styles.scoreHigh : score >= 60 ? styles.scoreMid : styles.scoreLow}`}>{score}</span>
+                        }
+                      </td>
+                    ))}
+                    <td>
+                      {avg === null ? <span className={styles.scoreEmpty}>—</span>
+                        : <span className={`${styles.scorePill} ${avg >= 80 ? styles.scoreHigh : avg >= 60 ? styles.scoreMid : styles.scoreLow}`}>{avg}</span>
+                      }
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// Helper for quiz question state updates
+function getSessionQuestionsFrom(all: QuizQuestion[], key: number) {
+  return all.filter(q => q.session_key === key).sort((a, b) => a.sort_order - b.sort_order);
+}
+
+// ════════════════════════════════════════════════════════
+// TAB: MONITORING TUGAS
+// ════════════════════════════════════════════════════════
+function TabTugas() {
+  const [participants, setParticipants] = useState<Participant[]>([]);
+  const [tasks, setTasks]               = useState<TaskItem[]>([]);
+  const [submissions, setSubmissions]   = useState<Submission[]>([]);
+  const [savingP, setSavingP]           = useState(false);
+  const [savedP, setSavedP]             = useState(false);
+  const [savingT, setSavingT]           = useState(false);
+  const [savedT, setSavedT]             = useState(false);
+  const [loading, setLoading]           = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      const [{ data: p }, { data: t }, { data: s }] = await Promise.all([
+        supabase.from("config_participants").select("*").order("sort_order"),
+        supabase.from("config_tasks").select("*").order("task_order"),
+        supabase.from("task_submissions").select("*").order("submitted_at", { ascending: false }),
+      ]);
+      setParticipants((p as Participant[]) || []);
+      setTasks((t as TaskItem[]) || []);
+      setSubmissions((s as Submission[]) || []);
+      setLoading(false);
+    }
+    load();
+  }, []);
+
+  // ── Participant CRUD ──
+  const addP = () => setParticipants(prev => [...prev, { name: "", email: "", sort_order: (prev[prev.length-1]?.sort_order||0)+1 }]);
+  const updateP = (i: number, f: "name"|"email", v: string) => setParticipants(prev => prev.map((p,idx) => idx===i ? {...p,[f]:v} : p));
+  const removeP = (i: number) => setParticipants(prev => prev.filter((_,idx) => idx!==i));
+  const handleSaveP = async () => {
+    setSavingP(true);
+    await supabase.from("config_participants").delete().neq("sort_order", -999);
+    const rows = participants.filter(p => p.name.trim()).map((p, i) => ({ name: p.name.trim(), email: p.email, sort_order: i+1 }));
+    if (rows.length) await supabase.from("config_participants").insert(rows);
+    setSavingP(false); setSavedP(true); setTimeout(() => setSavedP(false), 2500);
+  };
+
+  // ── Task CRUD ──
+  const addT = () => setTasks(prev => [...prev, { task_order: (prev[prev.length-1]?.task_order||0)+1, number:"", title:"", phase:"" }]);
+  const updateT = (i: number, f: keyof TaskItem, v: string|number) => setTasks(prev => prev.map((t,idx) => idx===i ? {...t,[f]:v} : t));
+  const removeT = (i: number) => setTasks(prev => prev.filter((_,idx) => idx!==i));
+  const handleSaveT = async () => {
+    setSavingT(true);
+    await supabase.from("config_tasks").delete().neq("task_order", -999);
+    const rows = tasks.filter(t => t.number.trim()).map((t, i) => ({ task_order: i+1, number: t.number, title: t.title, phase: t.phase }));
+    if (rows.length) await supabase.from("config_tasks").insert(rows);
+    setSavingT(false); setSavedT(true); setTimeout(() => setSavedT(false), 2500);
+  };
+
+  // ── Build rekapitulasi matrix ──
+  const pNames = participants.filter(p => p.name.trim()).map(p => p.name);
+  const checklistMap: Record<string, Set<number>> = {};
+  pNames.forEach(p => { checklistMap[p] = new Set(); });
+  submissions.forEach(s => { if (checklistMap[s.participant]) checklistMap[s.participant].add(s.task_id); });
+
+  if (loading) return <div className={styles.loading}>Memuat data tugas...</div>;
+
+  return (
+    <>
+      <div className={styles.panelHeader}>
+        <div>
+          <h2><FolderOpen size={20} /> Monitoring Tugas</h2>
+          <p>Kelola daftar peserta, daftar tugas, dan pantau rekapitulasi pengumpulan</p>
+        </div>
+      </div>
+
+      {/* Daftar Peserta */}
+      <div className={styles.card}>
+        <div className={styles.cardTitle}><Users size={14} /> Daftar Nama Peserta</div>
+        <p style={{ fontSize: 12, color: "#64748b", marginTop: -8 }}>Nama peserta yang ditambahkan di sini akan muncul di dropdown form pengumpulan learner.</p>
+        <div className={styles.listCard}>
+          <div className={styles.listRow} style={{ gridTemplateColumns: "24px 1fr 1fr auto", background: "#f8fafc" }}>
+            <span className={styles.listNum}>#</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8" }}>NAMA</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8" }}>EMAIL</span>
+            <span />
+          </div>
+          {participants.map((p, i) => (
+            <div key={i} className={`${styles.listRow} ${styles.listRowParticipant}`}>
+              <span className={styles.listNum}>{i+1}</span>
+              <input className={styles.input} value={p.name} onChange={e => updateP(i,"name",e.target.value)} placeholder="Nama peserta" style={{ fontSize: 12.5 }} />
+              <input className={styles.input} value={p.email} onChange={e => updateP(i,"email",e.target.value)} placeholder="email@..." style={{ fontSize: 12.5 }} />
+              <button className={styles.deleteBtn} onClick={() => removeP(i)}><Trash2 size={14} /></button>
+            </div>
+          ))}
+        </div>
+        <button className={styles.addRowBtn} onClick={addP}><Plus size={14} /> Tambah Peserta</button>
+        <div className={styles.rowActions}>
+          {savedP && <span className={styles.savedMsg}><CheckCircle size={14} /> Tersimpan</span>}
+          <button className={styles.saveBtn} onClick={handleSaveP} disabled={savingP}>
+            <Save size={14} /> {savingP ? "Menyimpan..." : "Simpan Daftar Peserta"}
+          </button>
+        </div>
+      </div>
+
+      {/* Daftar Tugas */}
+      <div className={styles.card}>
+        <div className={styles.cardTitle}><FolderOpen size={14} /> Daftar Tugas</div>
+        <p style={{ fontSize: 12, color: "#64748b", marginTop: -8 }}>Tugas yang ditambahkan di sini akan muncul di dropdown pilih tugas learner.</p>
+        <div className={styles.listCard}>
+          <div className={styles.listRow} style={{ gridTemplateColumns: "24px 110px 1fr 130px auto", background: "#f8fafc" }}>
+            <span className={styles.listNum}>#</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8" }}>NOMOR</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8" }}>JUDUL TUGAS</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8" }}>FASE</span>
+            <span />
+          </div>
+          {tasks.map((t, i) => (
+            <div key={i} className={`${styles.listRow} ${styles.listRowTask}`}>
+              <span className={styles.listNum}>{i+1}</span>
+              <input className={styles.input} value={t.number} onChange={e => updateT(i,"number",e.target.value)} placeholder="Tugas 1-2" style={{ fontSize: 12 }} />
+              <input className={styles.input} value={t.title} onChange={e => updateT(i,"title",e.target.value)} placeholder="Judul tugas..." style={{ fontSize: 12 }} />
+              <input className={styles.input} value={t.phase} onChange={e => updateT(i,"phase",e.target.value)} placeholder="Fase" style={{ fontSize: 12 }} />
+              <button className={styles.deleteBtn} onClick={() => removeT(i)}><Trash2 size={14} /></button>
+            </div>
+          ))}
+        </div>
+        <button className={styles.addRowBtn} onClick={addT}><Plus size={14} /> Tambah Tugas</button>
+        <div className={styles.rowActions}>
+          {savedT && <span className={styles.savedMsg}><CheckCircle size={14} /> Tersimpan</span>}
+          <button className={styles.saveBtn} onClick={handleSaveT} disabled={savingT}>
+            <Save size={14} /> {savingT ? "Menyimpan..." : "Simpan Daftar Tugas"}
+          </button>
+        </div>
+      </div>
+
+      {/* Rekapitulasi — sama persis dengan learner */}
+      <div className={styles.card} style={{ padding: "20px 16px" }}>
+        <div className={styles.cardTitle}><BarChart2 size={14} /> Rekapitulasi Pengumpulan Tugas</div>
+        <p style={{ fontSize: 12, color: "#64748b", marginTop: -8 }}>Checklist pengumpulan tugas seluruh peserta.</p>
+        <div style={{ overflowX: "auto" }}>
+          <table className={styles.scoresTable} style={{ minWidth: "auto" }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: "left" }}>Nama Peserta</th>
+                {tasks.map((t, i) => <th key={t.task_order}>T{i+1}</th>)}
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pNames.map(name => {
+                const submitted = checklistMap[name];
+                const total = submitted?.size || 0;
+                return (
+                  <tr key={name}>
+                    <td style={{ fontWeight: 700, textAlign: "left" }}>{name}</td>
+                    {tasks.map(t => (
+                      <td key={t.task_order}>
+                        {submitted?.has(t.task_order)
+                          ? <span className={`${styles.scorePill} ${styles.scoreHigh}`} style={{ fontSize: 12 }}>✓</span>
+                          : <span className={styles.scoreEmpty}>—</span>
+                        }
+                      </td>
+                    ))}
+                    <td>
+                      <span className={`${styles.scorePill} ${total > 0 ? styles.scoreMid : styles.scoreEmpty}`} style={{ minWidth: 44 }}>
+                        {total}/{tasks.length}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ════════════════════════════════════════════════════════
+// TAB: MATERI & REKAMAN
+// ════════════════════════════════════════════════════════
+function TabMateri() {
+  const [sessions, setSessions] = useState<MateriItem[]>([]);
+  const [openIdx, setOpenIdx]   = useState<number | null>(null);
+  const [saving, setSaving]     = useState<number | null>(null);
+  const [saved, setSaved]       = useState<number | null>(null);
+  const [loading, setLoading]   = useState(true);
+
+  useEffect(() => {
+    supabase.from("config_materi").select("*").order("session_no").then(({ data }) => {
+      const parsed = (data || []).map((r: MateriItem & { topics: unknown }) => ({
+        ...r, topics: Array.isArray(r.topics) ? r.topics : [],
+      }));
+      setSessions(parsed as MateriItem[]);
+      setLoading(false);
+    });
+  }, []);
+
+  const update = (i: number, f: keyof MateriItem, v: string | string[] | number) =>
+    setSessions(prev => prev.map((s, idx) => idx === i ? { ...s, [f]: v } : s));
+  const addTopic = (i: number) => setSessions(prev => prev.map((s, idx) => idx === i ? { ...s, topics: [...s.topics, ""] } : s));
+  const updateTopic = (i: number, ti: number, v: string) => setSessions(prev =>
+    prev.map((s, idx) => idx === i ? { ...s, topics: s.topics.map((t, j) => j === ti ? v : t) } : s));
+  const removeTopic = (i: number, ti: number) => setSessions(prev =>
+    prev.map((s, idx) => idx === i ? { ...s, topics: s.topics.filter((_, j) => j !== ti) } : s));
+
+  const handleSave = async (i: number) => {
+    setSaving(i);
+    const item = sessions[i];
+    await supabase.from("config_materi").upsert({ ...item }, { onConflict: "session_no" });
+    setSaving(null); setSaved(i); setTimeout(() => setSaved(null), 2500);
+  };
+
+  const addSession = () => {
+    const nextNo = (sessions[sessions.length - 1]?.session_no || 0) + 1;
+    setSessions(prev => [...prev, { session_no: nextNo, number_label: `Sesi ${nextNo}`, title: "", category: "Concept", materi_url: "", playlist_url: "", youtube_id: "", topics: [] }]);
+    setOpenIdx(sessions.length);
+  };
+
+  if (loading) return <div className={styles.loading}>Memuat data materi...</div>;
+
+  return (
+    <>
+      <div className={styles.panelHeader}>
+        <div>
+          <h2><PlayCircle size={20} /> Materi & Rekaman</h2>
+          <p>Edit konten materi per sesi — klik kartu untuk membuka editor</p>
+        </div>
+        <button className={styles.saveBtn} onClick={addSession} style={{ background: "#0ea5e9" }}>
+          <Plus size={14} /> Tambah Sesi
+        </button>
+      </div>
+
+      {sessions.map((item, i) => {
+        const isOpen = openIdx === i;
+        const catColor = CATEGORY_COLOR[item.category] || "#6366f1";
+        return (
+          <div key={item.session_no} className={styles.materiCard}>
+            <div className={`${styles.materiCardHead} ${isOpen ? styles.materiCardHeadOpen : ""}`}
+              onClick={() => setOpenIdx(isOpen ? null : i)}>
+              <div className={styles.materiCardHeadLeft}>
+                <span className={styles.sessionNumBadge}>{item.number_label}</span>
+                <span className={styles.categoryPill} style={{ background: `${catColor}18`, color: catColor }}>{item.category}</span>
+                <span className={styles.materiCardTitle}>{item.title || <i style={{ color: "#94a3b8" }}>Belum ada judul</i>}</span>
+              </div>
+              {isOpen ? <ChevronUp size={16} color="#94a3b8" /> : <ChevronDown size={16} color="#94a3b8" />}
+            </div>
+            {isOpen && (
+              <div className={styles.materiCardBody}>
+                <div className={styles.formGrid}>
+                  <div className={styles.field}><label>Label Sesi</label>
+                    <input className={styles.input} value={item.number_label} onChange={e => update(i,"number_label",e.target.value)} /></div>
+                  <div className={styles.field}><label>Nomor Sesi</label>
+                    <input className={styles.input} type="number" value={item.session_no} onChange={e => update(i,"session_no",Number(e.target.value))} /></div>
+                </div>
+                <div className={styles.field}><label>Judul Materi</label>
+                  <input className={styles.input} value={item.title} onChange={e => update(i,"title",e.target.value)} /></div>
+                <div className={styles.field}>
+                  <label>Kategori / Tag</label>
+                  <div className={styles.categoryBtns}>
+                    {Object.entries(CATEGORY_COLOR).map(([cat, color]) => (
+                      <button key={cat} className={`${styles.catBtn} ${item.category === cat ? styles.catBtnActive : ""}`}
+                        style={item.category === cat ? { background: color, borderColor: color } : {}}
+                        onClick={() => update(i,"category",cat)}>{cat}</button>
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.formGrid}>
+                  <div className={styles.field}><label>Link Materi / Slide</label>
+                    <input className={styles.input} value={item.materi_url} onChange={e => update(i,"materi_url",e.target.value)} placeholder="https://..." /></div>
+                  <div className={styles.field}><label>Link Playlist YouTube</label>
+                    <input className={styles.input} value={item.playlist_url} onChange={e => update(i,"playlist_url",e.target.value)} placeholder="https://youtube.com/playlist?..." /></div>
+                </div>
+                <div className={styles.field}><label>YouTube Video ID (embed)</label>
+                  <input className={styles.input} value={item.youtube_id} onChange={e => update(i,"youtube_id",e.target.value)} placeholder="dQw4w9WgXcQ" /></div>
+                <div className={styles.field}>
+                  <label>Poin-poin Materi</label>
+                  <div className={styles.topicsEditor}>
+                    {item.topics.map((t, ti) => (
+                      <div key={ti} className={styles.topicRow}>
+                        <input className={styles.topicInput} value={t}
+                          onChange={e => updateTopic(i, ti, e.target.value)} placeholder={`Poin ${ti+1}...`} />
+                        <button className={styles.deleteBtn} onClick={() => removeTopic(i, ti)}><Trash2 size={13} /></button>
+                      </div>
+                    ))}
+                    <button className={styles.addTopicBtn} onClick={() => addTopic(i)}><Plus size={12} /> Tambah Poin</button>
+                  </div>
+                </div>
+                <div className={styles.rowActions}>
+                  {saved === i && <span className={styles.savedMsg}><CheckCircle size={14} /> Tersimpan</span>}
+                  <button className={styles.saveBtn} onClick={() => handleSave(i)} disabled={saving === i}>
+                    <Save size={14} /> {saving === i ? "Menyimpan..." : "Simpan Sesi Ini"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </>
+  );
+}
+
+// ════════════════════════════════════════════════════════
+// TAB: FINAL PROJECT
+// ════════════════════════════════════════════════════════
+function TabFinal() {
+  const [projects, setProjects] = useState<FinalProject[]>([]);
+  const [loading, setLoading]   = useState(true);
+
+  useEffect(() => {
+    supabase.from("final_projects").select("*").order("submitted_at", { ascending: false }).then(({ data }) => {
+      setProjects((data as FinalProject[]) || []);
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) return <div className={styles.loading}>Memuat final project...</div>;
+
+  return (
+    <>
+      <div className={styles.panelHeader}>
+        <div>
+          <h2><Trophy size={20} /> Final Project</h2>
+          <p>Pantau pengumpulan final project peserta</p>
+        </div>
+      </div>
+      <div className={styles.card}>
+        <div className={styles.cardTitle}><Trophy size={14} /> Daftar Pengumpulan</div>
+        {projects.length === 0 && (
+          <div style={{ padding: "32px", textAlign: "center", color: "#94a3b8", fontSize: 13 }}>Belum ada final project yang dikumpulkan</div>
+        )}
+        {projects.length > 0 && (
+          <div className={styles.listCard}>
+            <div className={styles.listRow} style={{ gridTemplateColumns: "1fr 1fr auto", background: "#f8fafc" }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8" }}>PESERTA</span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8" }}>TANGGAL</span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8" }}>LINK</span>
+            </div>
+            {projects.map(fp => (
+              <div key={fp.participant} className={styles.listRow} style={{ gridTemplateColumns: "1fr 1fr auto" }}>
+                <span style={{ fontSize: 13, fontWeight: 700 }}>{fp.participant}</span>
+                <span style={{ fontSize: 12, color: "#64748b" }}>{new Date(fp.submitted_at).toLocaleDateString("id-ID", { day:"numeric", month:"short", year:"numeric" })}</span>
+                <a className={styles.linkBtn} href={fp.url} target="_blank" rel="noreferrer"><ExternalLink size={11} /> Lihat</a>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
+  );
+}

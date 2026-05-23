@@ -1,0 +1,361 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 40px 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.header h2 {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+}
+
+.header p {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.filterBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 10px;
+  width: fit-content;
+}
+
+.filterBtn {
+  background: transparent;
+  border: none;
+  padding: 8px 16px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filterBtn:hover {
+  color: var(--primary);
+}
+
+.activeFilter {
+  background: #ffffff;
+  color: var(--primary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Material Grid */
+.materiGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 8px rgba(0,29,53,0.06);
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,29,53,0.1);
+}
+
+/* Thumbnail */
+.thumbnailWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+  background: #001d35;
+}
+
+.thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.card:hover .thumbnail { transform: scale(1.04); }
+
+.thumbnailPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #001d35 0%, #002b4d 100%);
+}
+
+.thumbnailOverlay {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.categoryPill {
+  font-size: 10px;
+  font-weight: 800;
+  color: #ffffff;
+  padding: 3px 10px;
+  border-radius: 100px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 29, 53, 0.04);
+  border-color: rgba(0, 194, 255, 0.2);
+}
+
+/* Video Thumbnail */
+.videoThumbnailWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #0f172a;
+  overflow: hidden;
+}
+
+.embedContainer {
+  width: 100%;
+  height: 100%;
+}
+
+.iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.thumbnailPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #001d35 0%, #002b4d 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.thumbnailPlaceholder::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle, rgba(0, 194, 255, 0.15) 0%, transparent 80%);
+}
+
+.thumbnailPlaceholder:hover .overlayPlay {
+  transform: scale(1.1);
+  background: var(--accent-blue);
+  box-shadow: 0 0 20px rgba(0, 194, 255, 0.4);
+}
+
+.overlayPlay {
+  width: 54px;
+  height: 54px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+  z-index: 2;
+}
+
+.playIcon {
+  color: #ffffff;
+  font-size: 20px;
+  margin-left: 4px;
+}
+
+.durationBadge {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(0, 194, 255, 0.2);
+  color: var(--accent-blue);
+  border: 1px solid rgba(0, 194, 255, 0.3);
+  font-size: 9px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  z-index: 2;
+}
+
+/* Card Content */
+.cardContent {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex-grow: 1;
+}
+
+.cardMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sessionNum {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.categoryBadge {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.categoryBadge.concept {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.categoryBadge.frontend {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.categoryBadge.webmap {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.categoryBadge.python {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.categoryBadge.event {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.cardTitle {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--primary);
+  line-height: 1.35;
+}
+
+.topicsBox {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 60px;
+}
+
+.topicTag {
+  font-size: 12.5px;
+  color: #64748b;
+}
+
+/* Actions Section */
+.cardActions {
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
+  border-top: 1px dashed var(--border);
+  padding-top: 16px;
+}
+
+.actionBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.actionBtn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: var(--accent-indigo);
+}
+
+.actionBtnPrimary {
+  background: var(--accent-indigo);
+  color: #ffffff;
+  border-color: var(--accent-indigo);
+}
+
+.actionBtnPrimary:hover {
+  background: #0842a0;
+  border-color: #0842a0;
+  color: #ffffff;
+  box-shadow: 0 4px 8px rgba(11, 87, 208, 0.15);
+}
+
+.actionBtn span {
+  font-size: 10px;
+}
+
+/* Responsiveness */
+@media (max-width: 1024px) {
+  .materiGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .materiGrid {
+    grid-template-columns: 1fr;
+  }
+  .container {
+    padding: 24px 16px;
+  }
+}

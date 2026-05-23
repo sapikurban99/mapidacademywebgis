@@ -1,0 +1,37 @@
+import type { Metadata } from "next";
+import { Figtree } from "next/font/google";
+import ConditionalSidebar from "@/components/layout/ConditionalSidebar";
+import "./globals.css";
+
+const figtree = Figtree({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-figtree",
+});
+
+export const metadata: Metadata = {
+  title: "MAPID Academy - WebGIS Bootcamp Dashboard",
+  description: "All-in-one workspace for MAPID Academy WebGIS Development Bootcamp",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body className={figtree.className}>
+        <div style={{ display: "flex", minHeight: "100vh" }}>
+          <ConditionalSidebar />
+          <main style={{ flex: 1, overflowX: "hidden", display: "flex", flexDirection: "column" }}>
+            {children}
+          </main>
+        </div>
+      </body>
+    </html>
+  );
+}
+
+
+

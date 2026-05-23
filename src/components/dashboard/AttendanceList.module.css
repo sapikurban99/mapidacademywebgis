@@ -1,0 +1,251 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px 20px;
+  max-width: 1240px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+}
+
+.header h2 {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+}
+
+.header p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* Summary Grid */
+.summaryGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.summaryCard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.01);
+  position: relative;
+}
+
+.cardLabel {
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--primary);
+  margin: -2px 0 0 0;
+  letter-spacing: -0.015em;
+}
+
+.cardDesc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.fillAttendanceBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-indigo) 100%);
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.15);
+  transition: all 0.25s ease;
+  width: fit-content;
+  margin-top: 4px;
+}
+
+.fillAttendanceBtn:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+}
+
+.infoCard {
+  background: rgba(139, 92, 246, 0.02);
+  border-color: rgba(139, 92, 246, 0.12);
+}
+
+.infoCardHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.infoIcon {
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.infoCardHeader h3 {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.statusDesc {
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.5;
+}
+
+/* Attendance Table Card — seragam dengan TaskMonitoring & PostTest */
+.tableCard {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(0,29,53,0.04);
+}
+
+.cardHeader {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 14px;
+}
+
+.cardHeader h3 {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--primary);
+  margin: 0 0 4px 0;
+}
+
+.cardHeader p {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Table Wrapper */
+.tableWrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #ffffff;
+  max-width: 100%;
+}
+
+.attendanceTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+  text-align: left;
+}
+
+.attendanceTable th {
+  background: #f8fafc;
+  color: var(--primary);
+  font-weight: 800;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.attendanceTable td {
+  padding: 9px 8px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #475569;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.attendanceTable tr:last-child td { border-bottom: none; }
+.attendanceTable tr:hover td { background: #f8fafc; }
+
+/* Sticky Column */
+.stickyCol {
+  position: sticky;
+  left: 0;
+  background: #ffffff;
+  z-index: 5;
+  box-shadow: 4px 0 8px -4px rgba(0,0,0,0.08);
+  border-right: 1px solid #e2e8f0;
+  min-width: 170px;
+  font-weight: 700;
+  color: var(--primary);
+  font-size: 12px;
+  text-align: left !important;
+}
+
+.attendanceTable th.stickyCol {
+  background: #f8fafc;
+  z-index: 6;
+}
+
+.attendanceTable tr:hover td.stickyCol { background: #f8fafc; }
+
+/* Check/Absent badges */
+.presentBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #dcfce7;
+  color: #16a34a;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.absentBadge {
+  color: #cbd5e1;
+  font-weight: 500;
+}
+
+.loading {
+  padding: 100px 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* Responsiveness */
+@media (max-width: 1024px) {
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 24px 16px;
+  }
+}

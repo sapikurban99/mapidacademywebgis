@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(npm install *)",
+      "Bash(Get-Content \"d:\\\\RIZALDY\\\\Workingclass COCK\\\\MAPID Fulltime\\\\MAPID Academy WebGIS\\\\Dashboard Peserta\\\\package.json\")",
+      "Bash(Select-String \"supabase\")"
+    ]
+  }
+}

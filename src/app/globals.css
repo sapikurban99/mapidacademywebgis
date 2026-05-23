@@ -1,0 +1,83 @@
+:root {
+  --primary-rgb: 15, 23, 42;
+  --primary: #0f172a; /* Navy Slate 900 */
+  --primary-foreground: #ffffff;
+  --secondary: #f8fafc; /* Light Slate base background */
+  
+  /* WebGIS Premium Palette (Light Topo Purple Theme) */
+  --accent: #8b5cf6; /* Main Purple/Violet for Headers/Active items */
+  --accent-blue: #0f4c81; /* F1/Academy Deep Blue for primary actions/buttons */
+  --accent-indigo: #6366f1; /* Neon Indigo/Purple-Blue */
+  --accent-soft: rgba(139, 92, 246, 0.08); /* Soft purple tint */
+  --accent-border: rgba(139, 92, 246, 0.15);
+  
+  --muted: #64748b; /* Slate 500 for captions and subtitles */
+  --border: #e2e8f0; /* Soft border */
+  --grid-color: rgba(139, 92, 246, 0.03);
+  --background: #f8fafc; /* Clean Light Slate Background */
+  --card: #ffffff; /* Clean white card backgrounds */
+  --sidebar-width: 280px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--background);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Cpath d='M-10 150 C 40 100, 80 50, 150 50 C 220 50, 260 100, 310 150' stroke='rgba(139, 92, 246, 0.045)' stroke-width='1.5' fill='none'/%3E%3Cpath d='M-10 170 C 40 120, 80 70, 150 70 C 220 70, 260 120, 310 170' stroke='rgba(139, 92, 246, 0.045)' stroke-width='1.5' fill='none'/%3E%3Cpath d='M-10 190 C 40 140, 80 90, 150 90 C 220 90, 260 140, 310 190' stroke='rgba(139, 92, 246, 0.045)' stroke-width='1.5' fill='none'/%3E%3Cpath d='M-10 130 C 40 80, 80 30, 150 30 C 220 30, 260 80, 310 130' stroke='rgba(139, 92, 246, 0.045)' stroke-width='1.5' fill='none'/%3E%3Cpath d='M50 250 C 100 200, 150 200, 200 250 C 250 300, 300 300, 350 250' stroke='rgba(139, 92, 246, 0.045)' stroke-width='1.5' fill='none'/%3E%3Cpath d='M60 260 C 110 210, 160 210, 210 260 C 260 310, 310 310, 360 260' stroke='rgba(139, 92, 246, 0.045)' stroke-width='1.5' fill='none'/%3E%3Cpath d='M40 240 C 90 190, 140 190, 190 240 C 240 290, 290 290, 340 240' stroke='rgba(139, 92, 246, 0.045)' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  min-height: 100vh;
+  color: var(--primary);
+  font-family: 'Figtree', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.25);
+  border-radius: 99px;
+  border: 2px solid var(--background);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.45);
+}
+
+/* Utility classes */
+.glass {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(139, 92, 246, 0.15);
+}
+
+.text-muted { color: var(--muted); }
+.text-accent { color: var(--accent); }
+.font-bold { font-weight: 700; }
+.tracking-tight { letter-spacing: -0.025em; }
+
+/* Subtle premium micro-interactions */
+.btn-hover {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(139, 92, 246, 0.08);
+}
+
+.btn-hover:active {
+  transform: translateY(0);
+}

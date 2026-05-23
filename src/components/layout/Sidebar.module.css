@@ -1,0 +1,221 @@
+.sidebar {
+  width: var(--sidebar-width);
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  left: 0;
+  background: #ffffff;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  z-index: 100;
+  box-shadow: 4px 0 24px rgba(139, 92, 246, 0.02);
+}
+
+.brand {
+  padding: 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logoSvg {
+  width: 32px;
+  height: 32px;
+  filter: drop-shadow(0 2px 4px rgba(139, 92, 246, 0.15));
+  animation: logoPulse 4s infinite ease-in-out;
+}
+
+@keyframes logoPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.logoText {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.05;
+}
+
+.brandMapid {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -0.01em;
+}
+
+.brandAcademy {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+}
+
+.brandSubtitle {
+  font-size: 11px;
+  font-weight: 600;
+  color: #0284c7; /* WebGIS Blue from brand slides */
+  letter-spacing: -0.01em;
+  margin-top: 2px;
+}
+
+.navigation {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Custom Scrollbar for navigation */
+.navigation::-webkit-scrollbar {
+  width: 4px;
+}
+
+.navigation::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.1);
+  border-radius: 99px;
+}
+
+.navigation:hover::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.25);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sectionTitle {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  padding-left: 12px;
+  margin-bottom: 4px;
+}
+
+.menuList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.menuLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.menuLink:hover {
+  background: rgba(139, 92, 246, 0.05);
+  color: var(--accent);
+}
+
+.activeLink {
+  background: rgba(139, 92, 246, 0.08) !important;
+  color: var(--accent) !important;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+.menuIcon {
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menuName {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.activeIndicator {
+  position: absolute;
+  right: 12px;
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--accent);
+}
+
+.sidebarFooter {
+  padding: 20px 24px;
+  border-top: 1px solid var(--border);
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.batchLabel {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.batchValue {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* Responsiveness: Collapse Sidebar on screens below 768px */
+@media (max-width: 968px) {
+  .sidebar {
+    width: 80px;
+  }
+  .brandAcademy,
+  .brandMapid,
+  .brandSubtitle,
+  .sectionTitle,
+  .menuName,
+  .sidebarFooter {
+    display: none;
+  }
+  .logoContainer {
+    justify-content: center;
+    width: 100%;
+  }
+  .brand {
+    padding: 16px;
+    justify-content: center;
+  }
+  .navigation {
+    padding: 16px 8px;
+    align-items: center;
+  }
+  .menuLink {
+    padding: 12px;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+  }
+  .activeIndicator {
+    right: 4px;
+    top: 4px;
+  }
+}

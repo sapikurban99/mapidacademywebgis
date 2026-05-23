@@ -1,0 +1,253 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 40px 30px;
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.header { display: flex; flex-direction: column; gap: 8px; }
+.header h2 { font-size: 24px; font-weight: 800; color: var(--primary); letter-spacing: -0.02em; }
+.header p { color: #64748b; font-size: 14px; line-height: 1.5; }
+
+/* Accordion */
+.accordionList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.accordionCard {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,29,53,0.04);
+  transition: box-shadow 0.2s ease;
+}
+
+.accordionCard:hover {
+  box-shadow: 0 4px 16px rgba(0,29,53,0.08);
+}
+
+.accordionOpen {
+  border-color: rgba(0, 194, 255, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 194, 255, 0.08);
+}
+
+.accordionHeader {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 22px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: background 0.15s ease;
+}
+
+.accordionHeader:hover {
+  background: #f8fafc;
+}
+
+.accordionLeft {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+  min-width: 220px;
+}
+
+.softwareIcon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.logoImg {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.softwareName {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.versionBadge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+.accordionRight {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  justify-content: space-between;
+}
+
+.accordionDesc {
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.45;
+  flex: 1;
+}
+
+.chevron {
+  font-size: 11px;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+/* Accordion Body */
+.accordionBody {
+  border-top: 1px solid var(--border);
+  padding: 24px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: #fafbfc;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.guideBox h4 {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 12px;
+}
+
+.stepsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 20px;
+  margin: 0;
+}
+
+.stepsList li {
+  font-size: 13.5px;
+  color: #475569;
+  line-height: 1.55;
+}
+
+/* Redeem Code Box */
+.redeemBox {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.redeemLabel {
+  font-size: 9px;
+  font-weight: 800;
+  color: #16a34a;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.redeemCode {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.codeText {
+  font-size: 28px;
+  font-weight: 900;
+  color: #15803d;
+  font-family: 'Courier New', Courier, monospace;
+  letter-spacing: 4px;
+}
+
+.redeemNote {
+  font-size: 12.5px;
+  color: #166534;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Terminal Box */
+.terminalBox {
+  background: #0f172a;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.terminalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 14px;
+  background: #1e293b;
+  font-size: 10px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+}
+
+.terminalBox code {
+  display: block;
+  padding: 12px 16px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  color: #7dd3fc;
+}
+
+.copyBtn {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #e2e8f0;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.copyBtn:hover { background: rgba(255,255,255,0.18); }
+
+.downloadBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--primary);
+  color: #ffffff;
+  text-decoration: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  width: fit-content;
+  transition: opacity 0.15s ease;
+}
+
+.downloadBtn:hover { opacity: 0.85; }

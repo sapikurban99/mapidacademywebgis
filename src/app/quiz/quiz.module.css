@@ -1,0 +1,411 @@
+.container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 0 20px;
+  min-height: calc(100vh - 200px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Quiz Interface Card */
+.quizCard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Header Info */
+.quizHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 20px;
+}
+
+.questionMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.categoryTag {
+  background: var(--secondary);
+  color: var(--muted);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  width: fit-content;
+}
+
+.questionNumber {
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.timer {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary);
+  background: var(--secondary);
+  padding: 8px 16px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Progress Bar */
+.progressBarOuter {
+  width: 100%;
+  height: 6px;
+  background: var(--secondary);
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.progressBarInner {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent) 0%, #f43f5e 100%);
+  border-radius: 100px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Question Section */
+.questionContent {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.questionText {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+.imageWrapper {
+  width: 100%;
+  height: 250px;
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.questionImage {
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.imageWrapper:hover .questionImage {
+  transform: scale(1.03);
+}
+
+/* Options Grid */
+.optionsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.optionButton {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px 24px;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.optionButton:hover {
+  border-color: var(--primary);
+  background: var(--secondary);
+  transform: translateX(4px);
+}
+
+.optionIndex {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--secondary);
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.optionButtonSelected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.08);
+}
+
+.optionButtonSelected .optionIndex {
+  background: var(--accent);
+  color: white;
+}
+
+/* Footer Controls */
+.quizFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.backButton {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 10px;
+  transition: color 0.2s ease;
+}
+
+.backButton:hover {
+  color: var(--primary);
+}
+
+.nextButton {
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 28px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.1);
+}
+
+.nextButton:hover:not(:disabled) {
+  background: #1e293b;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.15);
+}
+
+.nextButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ================= RESULT SCREEN ================= */
+.resultContainer {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  animation: scaleUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.resultTitle {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: -10px;
+}
+
+.scoreCircleOuter {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent) 0%, #f43f5e 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 15px 35px rgba(239, 68, 68, 0.2);
+  position: relative;
+}
+
+.scoreCircleInner {
+  width: 156px;
+  height: 156px;
+  border-radius: 50%;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.scoreNumber {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1;
+}
+
+.scoreLabel {
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 4px;
+  font-weight: 700;
+}
+
+.summaryText {
+  font-size: 15px;
+  color: var(--muted);
+  max-width: 500px;
+  line-height: 1.5;
+}
+
+/* Stats Row in Results */
+.resultStatsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.resultStatBox {
+  background: var(--secondary);
+  border: 1px solid var(--border);
+  padding: 16px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.resultStatLabel {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.resultStatVal {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* Unlocked Badges Celebration Section */
+.celebrationSection {
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border-top: 1px solid var(--border);
+  padding-top: 24px;
+}
+
+.celebrationSection h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.unlockedBadgesRow {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.unlockedBadgeBadge {
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-border);
+  padding: 10px 16px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  animation: popBadge 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+@keyframes popBadge {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.resultActions {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  max-width: 500px;
+  margin-top: 10px;
+}
+
+@media (max-width: 480px) {
+  .resultActions {
+    flex-direction: column;
+  }
+}
+
+.actionButtonSecondary {
+  background: white;
+  border: 1px solid var(--border);
+  color: var(--primary);
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.actionButtonSecondary:hover {
+  background: var(--secondary);
+  border-color: var(--primary);
+}
