@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={figtree.className}>
-        <div style={{ display: "flex", minHeight: "100vh" }}>
+        <div style={{ display: "flex", flex: 1, alignItems: "stretch" }}>
           <ConditionalSidebar />
           <main style={{ flex: 1, overflowX: "hidden", display: "flex", flexDirection: "column" }}>
             {children}

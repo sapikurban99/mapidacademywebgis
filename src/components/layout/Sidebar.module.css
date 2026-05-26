@@ -1,6 +1,6 @@
 .sidebar {
   width: var(--sidebar-width);
-  height: 100vh;
+  min-height: 100vh;
   position: sticky;
   top: 0;
   left: 0;
@@ -11,6 +11,7 @@
   flex-shrink: 0;
   z-index: 100;
   box-shadow: 4px 0 24px rgba(139, 92, 246, 0.02);
+  align-self: stretch;
 }
 
 .brand {
@@ -63,7 +64,7 @@
 .brandSubtitle {
   font-size: 11px;
   font-weight: 600;
-  color: #0284c7; /* WebGIS Blue from brand slides */
+  color: #3f8bca;
   letter-spacing: -0.01em;
   margin-top: 2px;
 }
@@ -75,6 +76,7 @@
   display: flex;
   flex-direction: column;
   gap: 28px;
+  background: #ffffff;
 }
 
 /* Custom Scrollbar for navigation */
@@ -162,26 +164,6 @@
   box-shadow: 0 0 8px var(--accent);
 }
 
-.sidebarFooter {
-  padding: 20px 24px;
-  border-top: 1px solid var(--border);
-  background: #f8fafc;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.batchLabel {
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--muted);
-}
-
-.batchValue {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--accent);
-}
 
 /* Responsiveness: Collapse Sidebar on screens below 768px */
 @media (max-width: 968px) {
@@ -192,8 +174,7 @@
   .brandMapid,
   .brandSubtitle,
   .sectionTitle,
-  .menuName,
-  .sidebarFooter {
+  .menuName {
     display: none;
   }
   .logoContainer {

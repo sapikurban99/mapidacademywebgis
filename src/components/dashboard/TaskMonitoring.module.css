@@ -16,7 +16,7 @@
 
 /* Form Card */
 .formCard {
-  background: linear-gradient(135deg, #001d35 0%, #002b4d 100%);
+  background: #ffffff;
   border-radius: 18px;
   padding: 28px 32px;
   display: flex;
@@ -31,9 +31,9 @@
   font-size: 9px;
   font-weight: 800;
   letter-spacing: 1.5px;
-  color: #7dd3fc;
-  background: rgba(125, 211, 252, 0.12);
-  border: 1px solid rgba(125, 211, 252, 0.2);
+  color: #9575cd;
+  background: rgba(124, 82, 212, 0.08);
+  border: 1px solid rgba(124, 82, 212, 0.2);
   padding: 3px 10px;
   border-radius: 100px;
   width: fit-content;
@@ -42,13 +42,13 @@
 .formCardHeader h3 {
   font-size: 20px;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--primary);
   margin: 0;
 }
 
 .formDesc {
   font-size: 13px;
-  color: #94a3b8;
+  color: #64748b;
   margin: 0;
 }
 
@@ -69,16 +69,16 @@
 .formGroup label {
   font-size: 10px;
   font-weight: 800;
-  color: #94a3b8;
+  color: #64748b;
   letter-spacing: 0.5px;
 }
 
 .formSelect, .formInput {
-  background: #001526;
-  border: 1px solid rgba(255,255,255,0.1);
+  background: #f8fafc;
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 11px 14px;
-  color: #ffffff;
+  color: var(--primary);
   font-family: inherit;
   font-size: 13.5px;
   outline: none;
@@ -87,14 +87,14 @@
 }
 
 .formSelect:focus, .formInput:focus {
-  border-color: #7dd3fc;
-  box-shadow: 0 0 0 3px rgba(125,211,252,0.12);
+  border-color: #9575cd;
+  box-shadow: 0 0 0 3px rgba(124,82,212,0.1);
 }
 
 .formInput::placeholder { color: #475569; }
 
 .submitBtn {
-  background: #2563eb;
+  background: linear-gradient(135deg, #9575cd 0%, #5272b8 100%);
   color: #ffffff;
   border: none;
   border-radius: 8px;
@@ -105,9 +105,10 @@
   font-family: inherit;
   transition: all 0.2s ease;
   margin-top: 4px;
+  box-shadow: 0 4px 12px rgba(124,82,212,0.3);
 }
 
-.submitBtn:hover { background: #1d4ed8; transform: translateY(-1px); }
+.submitBtn:hover { opacity: 0.9; transform: translateY(-1px); }
 
 .successBanner {
   background: #dcfce7;
@@ -264,7 +265,7 @@
 }
 
 .dbTableLink {
-  color: #2563eb;
+  color: #5272b8;
   text-decoration: none;
   font-weight: 600;
   font-size: 12.5px;

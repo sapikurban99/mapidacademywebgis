@@ -1,589 +1,271 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 32px;
-  padding: 40px 30px;
-  max-width: 1200px;
+  gap: 20px;
+  padding: 32px 28px;
+  max-width: 900px;
   margin: 0 auto;
   width: 100%;
 }
 
-.header {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
 .header h2 {
-  font-size: 24px;
-  font-weight: 800;
+  font-size: 20px;
+  font-weight: 900;
   color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
   letter-spacing: -0.02em;
 }
 
 .header p {
+  font-size: 13px;
   color: #64748b;
+  margin-top: 4px;
+}
+
+/* ── Coming Soon ───────────────────────────────────────── */
+.comingSoonCard {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.comingSoonCard strong {
+  display: block;
   font-size: 14px;
-  line-height: 1.5;
-}
-
-/* Countdown Card */
-.countdownCard {
-  background: linear-gradient(135deg, #001d35 0%, #002b4d 100%);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 10px 30px rgba(0, 29, 53, 0.15);
-  border-radius: 16px;
-  padding: 40px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 16px;
-  color: #ffffff;
-  position: relative;
-  overflow: hidden;
-}
-
-.countdownCard::before {
-  content: "";
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(0, 194, 255, 0.08) 0%, transparent 60%);
-  pointer-events: none;
-}
-
-.tag {
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: var(--accent);
-  font-size: 9px;
-  font-weight: 800;
-  padding: 4px 10px;
-  border-radius: 100px;
-  width: fit-content;
-  letter-spacing: 1px;
-}
-
-.countdownCard h3 {
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-}
-
-.timerRow {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin: 12px 0;
-}
-
-.timerBlock {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  min-width: 70px;
-}
-
-.timeVal {
-  font-size: 40px;
-  font-weight: 900;
-  color: var(--accent-blue);
-  font-family: 'Courier New', Courier, monospace;
-  text-shadow: 0 0 15px rgba(0, 194, 255, 0.35);
-  line-height: 1;
-}
-
-.timeUnit {
-  font-size: 10px;
   font-weight: 700;
-  color: #94a3b8;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.separator {
-  font-size: 32px;
-  font-weight: 900;
-  color: #cbd5e1;
-  animation: pulseBlink 1s infinite alternate;
-  line-height: 1;
-}
-
-@keyframes pulseBlink {
-  from {
-    opacity: 0.3;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.targetDateText {
-  font-size: 13.5px;
-  color: #94a3b8;
-}
-
-.targetDateText strong {
-  color: #ffffff;
-}
-
-/* Requirements & Grading Grid */
-.requirementsSection {
-  display: grid;
-  grid-template-columns: 1.5fr 1fr;
-  gap: 24px;
-}
-
-.requirementsCard {
-  background: #ffffff;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  box-shadow: 0 4px 6px rgba(0, 29, 53, 0.005);
-}
-
-.requirementsCard h3 {
-  font-size: 18px;
-  font-weight: 800;
   color: var(--primary);
-  letter-spacing: -0.01em;
+  margin-bottom: 3px;
 }
 
-.sectionIntro {
-  font-size: 13.5px;
+.comingSoonCard p {
+  font-size: 13px;
   color: #64748b;
-  line-height: 1.5;
+  margin: 0;
 }
 
-.bulletList {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.bulletItem {
-  display: flex;
-  gap: 16px;
-  padding-top: 16px;
-  border-top: 1px dashed var(--border);
-}
-
-.bulletNum {
-  width: 24px;
-  height: 24px;
-  background: var(--accent-indigo);
-  color: #ffffff;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
+.comingSoonBadge {
+  margin-left: auto;
   flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(11, 87, 208, 0.15);
-}
-
-.bulletItem h5 {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--primary);
-  margin-bottom: 4px;
-}
-
-.bulletItem p {
-  font-size: 12.5px;
-  color: #64748b;
-  line-height: 1.5;
-}
-
-/* Focus grading card */
-.focusCard {
-  background: linear-gradient(to bottom, #ffffff, #f8fafc);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  box-shadow: 0 4px 6px rgba(0, 29, 53, 0.005);
-}
-
-.focusLabel {
-  font-size: 9px;
-  font-weight: 800;
-  color: var(--accent);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.focusCard h3 {
-  font-size: 16.5px;
-  font-weight: 800;
-  color: var(--primary);
-  letter-spacing: -0.01em;
-}
-
-.focusIntro {
-  font-size: 13px;
-  color: #64748b;
-  line-height: 1.5;
-}
-
-.focusItems {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.focusItem {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  border-top: 1px solid #e2e8f0;
-  padding-top: 14px;
-}
-
-.focusItem h5 {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--primary);
-}
-
-.focusItem p {
-  font-size: 12px;
-  color: #64748b;
-  line-height: 1.5;
-}
-
-.loading {
-  padding: 100px 0;
-  text-align: center;
-  color: #64748b;
-  font-size: 14px;
-}
-
-/* Submission Checklist Section */
-.submissionSection {
-  background: #ffffff;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 28px 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  box-shadow: 0 4px 6px rgba(0, 29, 53, 0.005);
-}
-
-.submissionHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-}
-
-.submissionHeader h3 {
-  font-size: 17px;
-  font-weight: 800;
-  color: var(--primary);
-  letter-spacing: -0.01em;
-  margin-bottom: 4px;
-}
-
-.submissionHeader p {
-  font-size: 13px;
-  color: #64748b;
-}
-
-.submissionCounter {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: #f8fafc;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 10px 20px;
-  flex-shrink: 0;
-}
-
-.counterNum {
-  font-size: 28px;
-  font-weight: 900;
-  color: var(--accent-indigo);
-  font-family: 'Courier New', Courier, monospace;
-  line-height: 1;
-}
-
-.counterLabel {
-  font-size: 10px;
-  font-weight: 700;
-  color: #94a3b8;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-top: 2px;
-}
-
-.submissionProgressBar {
-  height: 6px;
   background: #f1f5f9;
-  border-radius: 100px;
-  overflow: hidden;
-}
-
-.submissionProgressFill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent-indigo), var(--accent-blue));
-  border-radius: 100px;
-  transition: width 0.5s ease;
-}
-
-/* Participant List */
-.participantList {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.participantRow {
-  display: grid;
-  grid-template-columns: 36px 1fr 130px 90px;
-  align-items: center;
-  gap: 12px;
-  padding: 11px 16px;
-  border-bottom: 1px solid #f1f5f9;
-  transition: background 0.15s ease;
-}
-
-.participantRow:last-child {
-  border-bottom: none;
-}
-
-.participantRow:hover {
-  background: #f8fafc;
-}
-
-.participantRowActive {
-  background: #f0f7ff;
-}
-
-.participantRowActive:hover {
-  background: #e8f2ff;
-}
-
-.participantNum {
-  width: 24px;
-  height: 24px;
-  background: #f1f5f9;
-  color: #64748b;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.participantName {
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--primary);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.youBadge {
-  font-size: 9px;
+  color: #94a3b8;
+  font-size: 10px;
   font-weight: 800;
-  background: var(--accent-indigo);
-  color: #ffffff;
-  padding: 2px 7px;
+  letter-spacing: 1px;
+  padding: 5px 12px;
   border-radius: 100px;
-  letter-spacing: 0.3px;
+  border: 1px solid #e2e8f0;
 }
 
-.participantStatus {
-  display: flex;
-  align-items: center;
+/* ── Info Grid ─────────────────────────────────────────── */
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: 16px;
+  align-items: start;
 }
 
-.statusSubmitted {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: #dcfce7;
-  color: #16a34a;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 3px 9px;
-  border-radius: 100px;
-}
-
-.statusPending {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: #fef3c7;
-  color: #b45309;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 3px 9px;
-  border-radius: 100px;
-}
-
-.participantLink {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-
-.viewBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: var(--accent-indigo);
-  color: #ffffff;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 6px;
-  text-decoration: none;
-  transition: background 0.15s ease;
-}
-
-.viewBtn:hover {
-  background: #0842a0;
-}
-
-.noLink {
-  color: #cbd5e1;
-  font-size: 14px;
-}
-
-/* Submit Form */
-.submitForm {
-  background: #f8fafc;
+.infoCard {
+  background: #fff;
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  border-radius: 14px;
+  padding: 20px 22px;
 }
 
-.submitFormLabel {
+.penilaianCard {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 22px;
+}
+
+.infoTitle {
   display: flex;
   align-items: center;
   gap: 7px;
   font-size: 11px;
   font-weight: 800;
-  color: var(--accent-indigo);
+  color: var(--primary);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.05em;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 14px;
 }
 
-.currentUrl {
-  font-size: 12px;
-  color: #64748b;
-}
-
-.currentUrl a {
-  color: var(--accent-indigo);
-  text-decoration: underline;
-  word-break: break-all;
-}
-
-.inputRow {
+/* ── Checklist ─────────────────────────────────────────── */
+.checkList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
   display: flex;
+  flex-direction: column;
   gap: 10px;
 }
 
-.urlInput {
-  flex: 1;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  padding: 9px 14px;
-  font-family: inherit;
-  font-size: 13px;
-  color: var(--primary);
-  background: #ffffff;
-  outline: none;
-  transition: border-color 0.2s ease;
-}
-
-.urlInput:focus {
-  border-color: var(--accent-indigo);
-  box-shadow: 0 0 0 3px rgba(11, 87, 208, 0.08);
-}
-
-.urlInput::placeholder {
-  color: #94a3b8;
-}
-
-.submitBtn {
+.checkList li {
   display: flex;
-  align-items: center;
-  gap: 7px;
-  background: var(--accent-indigo);
-  color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  padding: 9px 18px;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.15s ease;
-}
-
-.submitBtn:hover {
-  background: #0842a0;
-}
-
-.successMsg {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #16a34a;
+  align-items: flex-start;
+  gap: 9px;
   font-size: 12.5px;
-  font-weight: 600;
+  color: #475569;
+  line-height: 1.5;
 }
 
-/* Responsiveness */
-@media (max-width: 992px) {
-  .requirementsSection {
-    grid-template-columns: 1fr;
-  }
+.checkIcon {
+  color: #9575cd;
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 
-@media (max-width: 576px) {
-  .container {
-    padding: 24px 16px;
-  }
-  .countdownCard {
-    padding: 24px;
-  }
-  .timerRow {
-    gap: 8px;
-  }
-  .timerBlock {
-    min-width: 50px;
-  }
-  .timeVal {
-    font-size: 28px;
-  }
-  .requirementsCard, .focusCard {
-    padding: 24px;
-  }
+/* ── Penilaian Grid ────────────────────────────────────── */
+.penilaianGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.penilaianItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 12px;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+.penilaianNum {
+  width: 22px;
+  height: 22px;
+  background: #9575cd;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.penilaianItem strong {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 3px;
+}
+
+.penilaianItem p {
+  font-size: 11px;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Rekapitulasi ──────────────────────────────────────── */
+.rekapCard {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px 24px;
+}
+
+.rekapTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table th {
+  padding: 9px 12px;
+  font-weight: 700;
+  color: #64748b;
+  text-align: left;
+  border-bottom: 2px solid var(--border);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.table td {
+  padding: 11px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.table tr:last-child td { border-bottom: none; }
+.table tr:hover td { background: #f8fafc; }
+
+.tdNum {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  width: 32px;
+}
+
+.tdName {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.tdDate {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.linkBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #5272b8;
+  background: #eff6ff;
+  border-radius: 7px;
+  padding: 5px 12px;
+  text-decoration: none;
+  transition: background 0.12s;
+}
+
+.linkBtn:hover { background: #dbeafe; }
+
+.dash {
+  font-size: 12px;
+  color: #cbd5e1;
+}
+
+.loading {
+  padding: 32px;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+@media (max-width: 700px) {
+  .container { padding: 18px 14px; }
+  .comingSoonCard { flex-wrap: wrap; }
+  .infoGrid { grid-template-columns: 1fr; }
+  .penilaianGrid { grid-template-columns: 1fr; }
 }

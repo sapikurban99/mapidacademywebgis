@@ -375,7 +375,7 @@ export default function F1PaddockQuiz() {
 
       {quizState === "LOBBY" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-          <div className={styles.lobbyLayout}>
+          <div>
             {/* Main Select Session */}
             <div className={styles.lobbyCard}>
               <span className={styles.f1Tag}>SESI KUIS WEBGIS</span>
@@ -424,68 +424,6 @@ export default function F1PaddockQuiz() {
               </button>
             </div>
 
-            {/* Leaderboard Standing */}
-            <div className={styles.standingsCard}>
-              <div className={styles.standingsHeader}>
-                <div>
-                  <p className={styles.boardLabel} style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                    <Trophy size={12} /> PAPAN POST TEST
-                  </p>
-                  <h4>Submit Post Test</h4>
-                </div>
-                <span className={styles.updateBadge} style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}>
-                  <Check size={11} /> Update : Post Test {leaderboardSessionLimit}
-                </span>
-              </div>
-
-              <div className={styles.standingsList}>
-                {standings
-                  .slice(leaderboardPage * ITEMS_PER_PAGE, (leaderboardPage + 1) * ITEMS_PER_PAGE)
-                  .map((driver, i) => {
-                    const rank = leaderboardPage * ITEMS_PER_PAGE + i;
-                    const medalClass =
-                      rank === 0 ? styles.rankGold :
-                      rank === 1 ? styles.rankSilver :
-                      rank === 2 ? styles.rankBronze : "";
-                    const medalIcon =
-                      rank === 0 ? <Trophy size={16} color="#f59e0b" /> :
-                      rank === 1 ? <Trophy size={16} color="#94a3b8" /> :
-                      rank === 2 ? <Trophy size={16} color="#d97706" /> :
-                                   <User   size={16} color="#94a3b8" />;
-
-                    return (
-                      <div
-                        key={rank}
-                        className={`${styles.standingRow} ${medalClass}`}
-                      >
-                        <span className={styles.standingRank}>#{rank + 1}</span>
-                        <span className={styles.standingAvatar}>{medalIcon}</span>
-                        <div className={styles.standingInfo}>
-                          <span className={styles.standingName}>{driver.name}</span>
-                        </div>
-                        <span className={styles.standingScore}>{driver.score}<span className={styles.ptsLabel}> PTS</span></span>
-                      </div>
-                    );
-                  })}
-              </div>
-
-              {/* Pagination */}
-              <div className={styles.pagination}>
-                <button
-                  className={styles.pageBtn}
-                  onClick={() => setLeaderboardPage(p => Math.max(0, p - 1))}
-                  disabled={leaderboardPage === 0}
-                >‹</button>
-                <span className={styles.pageInfo}>
-                  {leaderboardPage + 1} / {Math.ceil(standings.length / ITEMS_PER_PAGE)}
-                </span>
-                <button
-                  className={styles.pageBtn}
-                  onClick={() => setLeaderboardPage(p => Math.min(Math.ceil(standings.length / ITEMS_PER_PAGE) - 1, p + 1))}
-                  disabled={leaderboardPage >= Math.ceil(standings.length / ITEMS_PER_PAGE) - 1}
-                >›</button>
-              </div>
-            </div>
           </div>
 
           {/* Database Pengisian Kuis (Collective Database) */}

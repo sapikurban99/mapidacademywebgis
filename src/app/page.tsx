@@ -10,6 +10,7 @@ import PlatformSoftware from "@/components/dashboard/PlatformSoftware";
 import MateriVideo from "@/components/dashboard/MateriVideo";
 import F1PaddockQuiz from "@/components/dashboard/F1PaddockQuiz";
 import FinalProjectComing from "@/components/dashboard/FinalProjectComing";
+import LinkPendukung from "@/components/dashboard/LinkPendukung";
 import styles from "./page.module.css";
 
 function DashboardContent() {
@@ -46,6 +47,8 @@ function DashboardContent() {
       return <FinalProjectComing />;
     case "quiz":
       return <F1PaddockQuiz />;
+    case "links":
+      return <LinkPendukung />;
     default:
       return <DashboardOverview />;
   }

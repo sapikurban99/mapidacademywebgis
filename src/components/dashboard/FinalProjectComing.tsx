@@ -1,122 +1,138 @@
 "use client";
 
-import { Trophy, ClipboardList, Lightbulb, Map, Palette, Brain, Hourglass } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Trophy, ExternalLink, Hourglass, CheckCircle2, Globe } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 import styles from "./FinalProjectComing.module.css";
 
+interface FinalProject { participant: string; url: string; submitted_at: string; }
+
+const KETENTUAN_OUTPUT = [
+  "Landing page / dashboard sederhana yang rapi dan informatif",
+  "WebMap interaktif berbasis MapLibre GL JS",
+  "Integrasi data spasial pribadi atau project nyata",
+  "Minimal 1 spatial feature: popup, heatmap, radius, atau isochrone",
+  "Public deployment dengan link project yang bisa diakses",
+  "Portfolio-ready WebGIS project yang siap dipresentasikan",
+];
+
+const FOKUS_PENILAIAN = [
+  { label: "Industry Relevance",            desc: "Relevansi dengan kebutuhan industri dan use case nyata di lapangan." },
+  { label: "Problem Solving & Storytelling", desc: "Kemampuan mengangkat permasalahan spasial dan menyajikannya secara naratif." },
+  { label: "UI/UX & Visual Clarity",        desc: "Tampilan dashboard yang bersih, intuitif, dan nyaman digunakan." },
+  { label: "Struktur & Reasoning Code",     desc: "Kualitas kode, keterbacaan, dan kemampuan menjelaskan logika implementasi." },
+  { label: "Interaktivitas WebGIS",         desc: "Kelengkapan fitur spasial dan tingkat interaksi user pada peta." },
+  { label: "Progress & Consistency",        desc: "Konsistensi pengerjaan tugas dari sesi awal hingga deployment akhir." },
+];
+
 export default function FinalProjectComing() {
+  const [participants, setParticipants] = useState<string[]>([]);
+  const [projects, setProjects]         = useState<FinalProject[]>([]);
+  const [loading, setLoading]           = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      const [{ data: p }, { data: fp }] = await Promise.all([
+        supabase.from("config_participants").select("name").order("sort_order"),
+        supabase.from("final_projects").select("participant,url,submitted_at"),
+      ]);
+      setParticipants((p || []).map((x: { name: string }) => x.name));
+      setProjects((fp as FinalProject[]) || []);
+      setLoading(false);
+    }
+    load();
+  }, []);
+
+  const projectMap: Record<string, FinalProject> = {};
+  projects.forEach(fp => { projectMap[fp.participant] = fp; });
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h2 style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <Trophy size={22} />
-          Final Project WebGIS
-        </h2>
-        <p>Unjuk karya akhir produk WebGIS interaktif tingkat industri yang layak menjadi portofolio unggulan Anda.</p>
+        <h2><Trophy size={22} /> Final Project WebGIS</h2>
+        <p>Rekapitulasi pengumpulan final project peserta WebGIS Bootcamp Batch 3.</p>
       </div>
 
-      {/* Coming Soon — Submission Checklist */}
-      <div className={styles.submissionSection}>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "16px", padding: "48px 24px", textAlign: "center" }}>
-          <div style={{ width: "64px", height: "64px", background: "#f1f5f9", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Hourglass size={28} color="#94a3b8" />
-          </div>
-          <div>
-            <h3 style={{ fontSize: "16px", fontWeight: 800, color: "var(--primary)", marginBottom: "6px" }}>
-              Status Pengumpulan Final Project
-            </h3>
-            <p style={{ fontSize: "13.5px", color: "#64748b", maxWidth: "420px" }}>
-              Checklist pengumpulan WebGIS final project peserta akan dibuka saat mendekati akhir program. Pantau terus halaman ini!
-            </p>
-          </div>
-          <span style={{ background: "#f1f5f9", color: "#94a3b8", fontSize: "10px", fontWeight: 800, padding: "4px 12px", borderRadius: "100px", letterSpacing: "1px" }}>
-            COMING SOON
-          </span>
+      {/* Coming Soon */}
+      <div className={styles.comingSoonCard}>
+        <Hourglass size={24} color="#94a3b8" />
+        <div>
+          <strong>Form Pengumpulan Final Project</strong>
+          <p>Form pengumpulan akan dibuka mendekati akhir program. Pantau terus halaman ini!</p>
         </div>
+        <span className={styles.comingSoonBadge}>COMING SOON</span>
       </div>
 
-      {/* Minimum Requirements & Rules */}
-      <div className={styles.requirementsSection}>
-        <div className={styles.requirementsCard}>
-          <h3 style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <ClipboardList size={18} />
-            Output Minimum WebGIS
-          </h3>
-          <p className={styles.sectionIntro}>Setiap proyek akhir peserta wajib memenuhi kriteria minimum di bawah ini untuk dinyatakan lulus:</p>
+      {/* Info Grid — 2 cards side by side */}
+      <div className={styles.infoGrid}>
 
-          <div className={styles.bulletList}>
-            <div className={styles.bulletItem}>
-              <span className={styles.bulletNum}>1</span>
-              <div>
-                <h5>Landing Page / Dashboard</h5>
-                <p>Halaman web pembungkus peta yang rapi, informatif, dan responsif ketika diakses di handphone/tablet.</p>
-              </div>
-            </div>
+        <div className={styles.infoCard}>
+          <div className={styles.infoTitle}><Globe size={15} /> Output Minimum WebGIS</div>
+          <ul className={styles.checkList}>
+            {KETENTUAN_OUTPUT.map((item, i) => (
+              <li key={i}><CheckCircle2 size={13} className={styles.checkIcon} />{item}</li>
+            ))}
+          </ul>
+        </div>
 
-            <div className={styles.bulletItem}>
-              <span className={styles.bulletNum}>2</span>
-              <div>
-                <h5>WebMap Interaktif</h5>
-                <p>Peta dasar menggunakan MapLibre GL JS lengkap dengan fitur navigasi zoom, panning, dan pointer.</p>
+        <div className={styles.penilaianCard}>
+          <div className={styles.infoTitle}><Trophy size={15} /> Fokus Penilaian Final Project</div>
+          <div className={styles.penilaianGrid}>
+            {FOKUS_PENILAIAN.map((p, i) => (
+              <div key={i} className={styles.penilaianItem}>
+                <span className={styles.penilaianNum}>{i + 1}</span>
+                <div>
+                  <strong>{p.label}</strong>
+                  <p>{p.desc}</p>
+                </div>
               </div>
-            </div>
-
-            <div className={styles.bulletItem}>
-              <span className={styles.bulletNum}>3</span>
-              <div>
-                <h5>Integrasi Cloud Database Spasial</h5>
-                <p>Data peta dimuat langsung secara dinamis menggunakan REST API Endpoint GEO MAPID pribadi Anda.</p>
-              </div>
-            </div>
-
-            <div className={styles.bulletItem}>
-              <span className={styles.bulletNum}>4</span>
-              <div>
-                <h5>Minimal 1 Fitur Analisis Spasial</h5>
-                <p>Menampilkan analisis spasial fungsional seperti: Popup detail, Heatmap densitas, Buffer radius Turf.js, atau jangkauan Isochrone.</p>
-              </div>
-            </div>
-
-            <div className={styles.bulletItem}>
-              <span className={styles.bulletNum}>5</span>
-              <div>
-                <h5>Public Live Deployment</h5>
-                <p>Aplikasi web harus di-deploy ke publik secara online (Netlify / GitHub Pages / Vercel) dan dapat diakses kapan saja.</p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
-        <div className={styles.focusCard}>
-          <span className={styles.focusLabel}>FOKUS UTAMA MENTOR</span>
-          <h3 style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <Lightbulb size={17} />
-            Fokus Penilaian Portfolio
-          </h3>
-          <p className={styles.focusIntro}>Tim juri dan mentor MAPID Academy akan menilai proyek Anda berdasarkan kriteria industri riil:</p>
+      </div>
 
-          <div className={styles.focusItems}>
-            <div className={styles.focusItem}>
-              <h5 style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <Map size={14} /> Industry Relevance &amp; Use Case
-              </h5>
-              <p>Seberapa relevan solusi WebGIS Anda untuk menyelesaikan permasalahan nyata di lapangan (bukan sekadar tugas syntax).</p>
-            </div>
-
-            <div className={styles.focusItem}>
-              <h5 style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <Palette size={14} /> UI/UX &amp; Visual Clarity
-              </h5>
-              <p>Kerapian layout dashboard, harmoni pilihan warna peta, kenyamanan popup, dan keterbacaan data spasial oleh user.</p>
-            </div>
-
-            <div className={styles.focusItem}>
-              <h5 style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <Brain size={14} /> Coding Logic &amp; Reasoning
-              </h5>
-              <p>Struktur penulisan kode yang bersih (clean code) dan pemahaman reasoning di balik implementasi fitur (bukan salin tempel AI penuh).</p>
-            </div>
-          </div>
-        </div>
+      {/* Rekapitulasi */}
+      <div className={styles.rekapCard}>
+        <div className={styles.rekapTitle}><Trophy size={14} /> Rekapitulasi Pengumpulan Final Project</div>
+        {loading && <div className={styles.loading}>Memuat data...</div>}
+        {!loading && (
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nama Peserta</th>
+                <th>Link WebGIS</th>
+                <th>Tanggal</th>
+              </tr>
+            </thead>
+            <tbody>
+              {participants.map((name, i) => {
+                const fp = projectMap[name];
+                return (
+                  <tr key={name}>
+                    <td className={styles.tdNum}>{i + 1}</td>
+                    <td className={styles.tdName}>{name}</td>
+                    <td>
+                      {fp
+                        ? <a href={fp.url} target="_blank" rel="noreferrer" className={styles.linkBtn}>
+                            <ExternalLink size={11} /> Lihat WebGIS
+                          </a>
+                        : <span className={styles.dash}>Belum dikumpulkan</span>
+                      }
+                    </td>
+                    <td className={styles.tdDate}>
+                      {fp
+                        ? new Date(fp.submitted_at).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })
+                        : "—"
+                      }
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

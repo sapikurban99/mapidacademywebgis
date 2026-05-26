@@ -36,15 +36,15 @@
 }
 
 .lobbyCard {
-  background: linear-gradient(135deg, #001d35 0%, #002b4d 100%);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 10px 30px rgba(0, 29, 53, 0.15);
+  background: #ffffff;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
   border-radius: 16px;
   padding: 22px;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  color: #ffffff;
+  color: var(--primary);
 }
 
 .f1Tag {
@@ -63,11 +63,12 @@
   font-size: 17px;
   font-weight: 800;
   letter-spacing: -0.01em;
+  color: var(--primary);
 }
 
 .lobbyDesc {
   font-size: 13px;
-  color: #94a3b8;
+  color: #64748b;
   line-height: 1.5;
 }
 
@@ -81,16 +82,16 @@
 .sessionSelectorWrapper label {
   font-size: 10px;
   font-weight: 800;
-  color: #94a3b8;
+  color: #64748b;
   letter-spacing: 0.5px;
 }
 
 .sessionSelect {
-  background: #001526;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #f8fafc;
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 10px 12px;
-  color: #ffffff;
+  color: var(--primary);
   font-family: inherit;
   font-size: 13.5px;
   outline: none;
@@ -345,7 +346,7 @@
 }
 
 .telemetryLightsPanel {
-  background: #001d35;
+  background: #3f8bca;
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 16px;
   padding: 20px;
@@ -389,7 +390,7 @@
 }
 
 .lightCurrent {
-  background: #001d35;
+  background: #3f8bca;
   border-color: var(--accent-blue);
   color: var(--accent-blue);
   box-shadow: 0 0 10px rgba(0, 194, 255, 0.3);
@@ -581,7 +582,7 @@
 
 .optionSelected .optLetter {
   background: var(--accent-blue);
-  color: #001d35;
+  color: #3f8bca;
 }
 
 .optionCorrect {

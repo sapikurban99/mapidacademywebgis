@@ -11,6 +11,7 @@ import {
   PlayCircle,
   Settings2,
   Trophy,
+  Link2,
   type LucideIcon,
 } from "lucide-react";
 import styles from "./Sidebar.module.css";
@@ -47,6 +48,7 @@ const MENU_SECTIONS: MenuSection[] = [
     title: "RESOURCES",
     items: [
       { id: "software", name: "Platform & Software", icon: Settings2 },
+      { id: "links", name: "Link Pendukung", icon: Link2 },
     ],
   },
   {
@@ -105,10 +107,6 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      <div className={styles.sidebarFooter}>
-        <span className={styles.batchLabel}>WebGIS Bootcamp</span>
-        <span className={styles.batchValue}>Batch 3 (2025)</span>
-      </div>
     </aside>
   );
 }
