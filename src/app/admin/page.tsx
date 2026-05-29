@@ -88,10 +88,10 @@ function TabOverview() {
   useEffect(() => {
     async function load() {
       const [{ data: p }, { count: a }, { count: t }, { count: q }] = await Promise.all([
-        supabase.from("config_participants").select("*").order("sort_order"),
-        supabase.from("attendance").select("*", { count: "exact", head: true }).eq("attended", true),
-        supabase.from("task_submissions").select("*", { count: "exact", head: true }),
-        supabase.from("quiz_scores").select("*", { count: "exact", head: true }),
+        supabase.from("academy_config_participants").select("*").order("sort_order"),
+        supabase.from("academy_attendance").select("*", { count: "exact", head: true }).eq("attended", true),
+        supabase.from("academy_task_submissions").select("*", { count: "exact", head: true }),
+        supabase.from("academy_quiz_scores").select("*", { count: "exact", head: true }),
       ]);
       setParticipants((p as Participant[]) || []);
       setStats({ participants: p?.length || 0, attendances: a || 0, submissions: t || 0, quizzes: q || 0 });
@@ -156,7 +156,7 @@ function TabTatib() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.from("site_config").select("key,value").then(({ data }) => {
+    supabase.from("academy_site_config").select("key,value").then(({ data }) => {
       const map: Record<string, string> = {};
       (data || []).forEach((r: { key: string; value: string }) => { map[r.key] = r.value; });
       setCfg(map);
@@ -169,7 +169,7 @@ function TabTatib() {
   const handleSave = async () => {
     setSaving(true);
     const entries = Object.entries(cfg).map(([key, value]) => ({ key, value, updated_at: new Date().toISOString() }));
-    await supabase.from("site_config").upsert(entries, { onConflict: "key" });
+    await supabase.from("academy_site_config").upsert(entries, { onConflict: "key" });
     setSaving(false); setSaved(true); setTimeout(() => setSaved(false), 2500);
   };
 
@@ -255,9 +255,9 @@ function TabAbsensi() {
   useEffect(() => {
     async function load() {
       const [{ data: p }, { data: a }, { data: cfg }] = await Promise.all([
-        supabase.from("config_participants").select("*").order("sort_order"),
-        supabase.from("attendance").select("participant,session_no,attended"),
-        supabase.from("site_config").select("key,value").in("key", ["attendance_link","total_absensi_sessions"]),
+        supabase.from("academy_config_participants").select("*").order("sort_order"),
+        supabase.from("academy_attendance").select("participant,session_no,attended"),
+        supabase.from("academy_site_config").select("key,value").in("key", ["attendance_link","total_absensi_sessions"]),
       ]);
       setParticipants((p as Participant[]) || []);
       const map: Record<string, boolean> = {};
@@ -278,12 +278,12 @@ function TabAbsensi() {
     const key = `${participant}__${session_no}`;
     const next = !grid[key];
     setGrid(prev => ({ ...prev, [key]: next }));
-    await supabase.from("attendance").upsert({ participant, session_no, attended: next }, { onConflict: "participant,session_no" });
+    await supabase.from("academy_attendance").upsert({ participant, session_no, attended: next }, { onConflict: "participant,session_no" });
   }, [grid]);
 
   const handleSaveLink = async () => {
     setSavingGrid(true);
-    await supabase.from("site_config").upsert([
+    await supabase.from("academy_site_config").upsert([
       { key: "attendance_link", value: attendanceLink, updated_at: new Date().toISOString() },
       { key: "total_absensi_sessions", value: String(totalSessions), updated_at: new Date().toISOString() },
     ], { onConflict: "key" });
@@ -301,11 +301,11 @@ function TabAbsensi() {
 
   const handleSavePeserta = async () => {
     setSavingPeserta(true);
-    await supabase.from("config_participants").delete().neq("sort_order", -999);
+    await supabase.from("academy_config_participants").delete().neq("sort_order", -999);
     const rows = participants.filter(p => p.name.trim()).map((p, i) => ({
       name: p.name.trim(), email: p.email, sort_order: i + 1
     }));
-    if (rows.length) await supabase.from("config_participants").insert(rows);
+    if (rows.length) await supabase.from("academy_config_participants").insert(rows);
     setSavingPeserta(false); setSavedPeserta(true); setTimeout(() => setSavedPeserta(false), 2500);
   };
 
@@ -434,10 +434,10 @@ function TabPostTest() {
   useEffect(() => {
     async function load() {
       const [{ data: cfg }, { data: q }, { data: s }, { data: p }] = await Promise.all([
-        supabase.from("post_test_config").select("total_sessions").limit(1).single(),
-        supabase.from("quiz_questions").select("*").order("session_key").order("sort_order"),
-        supabase.from("quiz_scores").select("participant,session_key,score"),
-        supabase.from("config_participants").select("name").order("sort_order"),
+        supabase.from("academy_post_test_config").select("total_sessions").limit(1).single(),
+        supabase.from("academy_quiz_questions").select("*").order("session_key").order("sort_order"),
+        supabase.from("academy_quiz_scores").select("participant,session_key,score"),
+        supabase.from("academy_config_participants").select("name").order("sort_order"),
       ]);
       if (cfg) setTotalSessions((cfg as { total_sessions: number }).total_sessions || 1);
       const qs = (q || []).map((r: QuizQuestion & { options: unknown }) => ({
@@ -453,11 +453,11 @@ function TabPostTest() {
 
   const handleSaveCfg = async () => {
     setSavingCfg(true);
-    const { data: existing } = await supabase.from("post_test_config").select("id").limit(1).single();
+    const { data: existing } = await supabase.from("academy_post_test_config").select("id").limit(1).single();
     if (existing) {
-      await supabase.from("post_test_config").update({ total_sessions: totalSessions, updated_at: new Date().toISOString() }).eq("id", (existing as { id: string }).id);
+      await supabase.from("academy_post_test_config").update({ total_sessions: totalSessions, updated_at: new Date().toISOString() }).eq("id", (existing as { id: string }).id);
     } else {
-      await supabase.from("post_test_config").insert({ total_sessions: totalSessions });
+      await supabase.from("academy_post_test_config").insert({ total_sessions: totalSessions });
     }
     setSavingCfg(false); setSavedCfg(true); setTimeout(() => setSavedCfg(false), 2500);
   };
@@ -505,7 +505,7 @@ function TabPostTest() {
   const handleSaveSession = async (key: number) => {
     setSavingQ(key);
     const sessionQs = getSessionQuestions(key);
-    await supabase.from("quiz_questions").delete().eq("session_key", key);
+    await supabase.from("academy_quiz_questions").delete().eq("session_key", key);
     if (sessionQs.length) {
       const rows = sessionQs.map((q, i) => ({
         session_key: key, sort_order: i,
@@ -514,7 +514,7 @@ function TabPostTest() {
         correct_answer: q.correct_answer,
         image_url: q.image_url || "",
       }));
-      await supabase.from("quiz_questions").insert(rows);
+      await supabase.from("academy_quiz_questions").insert(rows);
     }
     setSavingQ(null); setSavedQ(key); setTimeout(() => setSavedQ(null), 2500);
   };
@@ -713,9 +713,9 @@ function TabTugas() {
   useEffect(() => {
     async function load() {
       const [{ data: p }, { data: t }, { data: s }] = await Promise.all([
-        supabase.from("config_participants").select("*").order("sort_order"),
-        supabase.from("config_tasks").select("*").order("task_order"),
-        supabase.from("task_submissions").select("*").order("submitted_at", { ascending: false }),
+        supabase.from("academy_config_participants").select("*").order("sort_order"),
+        supabase.from("academy_config_tasks").select("*").order("task_order"),
+        supabase.from("academy_task_submissions").select("*").order("submitted_at", { ascending: false }),
       ]);
       setParticipants((p as Participant[]) || []);
       setTasks((t as TaskItem[]) || []);
@@ -731,9 +731,9 @@ function TabTugas() {
   const removeP = (i: number) => setParticipants(prev => prev.filter((_,idx) => idx!==i));
   const handleSaveP = async () => {
     setSavingP(true);
-    await supabase.from("config_participants").delete().neq("sort_order", -999);
+    await supabase.from("academy_config_participants").delete().neq("sort_order", -999);
     const rows = participants.filter(p => p.name.trim()).map((p, i) => ({ name: p.name.trim(), email: p.email, sort_order: i+1 }));
-    if (rows.length) await supabase.from("config_participants").insert(rows);
+    if (rows.length) await supabase.from("academy_config_participants").insert(rows);
     setSavingP(false); setSavedP(true); setTimeout(() => setSavedP(false), 2500);
   };
 
@@ -743,9 +743,9 @@ function TabTugas() {
   const removeT = (i: number) => setTasks(prev => prev.filter((_,idx) => idx!==i));
   const handleSaveT = async () => {
     setSavingT(true);
-    await supabase.from("config_tasks").delete().neq("task_order", -999);
+    await supabase.from("academy_config_tasks").delete().neq("task_order", -999);
     const rows = tasks.filter(t => t.number.trim()).map((t, i) => ({ task_order: i+1, number: t.number, title: t.title, phase: t.phase }));
-    if (rows.length) await supabase.from("config_tasks").insert(rows);
+    if (rows.length) await supabase.from("academy_config_tasks").insert(rows);
     setSavingT(false); setSavedT(true); setTimeout(() => setSavedT(false), 2500);
   };
 
@@ -881,7 +881,7 @@ function TabMateri() {
   const [loading, setLoading]   = useState(true);
 
   useEffect(() => {
-    supabase.from("config_materi").select("*").order("session_no").then(({ data }) => {
+    supabase.from("academy_config_materi").select("*").order("session_no").then(({ data }) => {
       const parsed = (data || []).map((r: MateriItem & { topics: unknown }) => ({
         ...r, topics: Array.isArray(r.topics) ? r.topics : [],
       }));
@@ -901,7 +901,7 @@ function TabMateri() {
   const handleSave = async (i: number) => {
     setSaving(i);
     const item = sessions[i];
-    await supabase.from("config_materi").upsert({ ...item }, { onConflict: "session_no" });
+    await supabase.from("academy_config_materi").upsert({ ...item }, { onConflict: "session_no" });
     setSaving(null); setSaved(i); setTimeout(() => setSaved(null), 2500);
   };
 
@@ -1003,7 +1003,7 @@ function TabFinal() {
   const [loading, setLoading]   = useState(true);
 
   useEffect(() => {
-    supabase.from("final_projects").select("*").order("submitted_at", { ascending: false }).then(({ data }) => {
+    supabase.from("academy_final_projects").select("*").order("submitted_at", { ascending: false }).then(({ data }) => {
       setProjects((data as FinalProject[]) || []);
       setLoading(false);
     });

@@ -5,7 +5,7 @@
 
 -- ─── 1. ATTENDANCE ──────────────────────────────────────────
 -- One row per participant per session. Managed by admin.
-CREATE TABLE IF NOT EXISTS attendance (
+CREATE TABLE IF NOT EXISTS academy_attendance (
   id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   participant  text NOT NULL,
   session_no   integer NOT NULL CHECK (session_no BETWEEN 1 AND 17),
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS attendance (
 
 -- ─── 2. TASK SUBMISSIONS ────────────────────────────────────
 -- Participants submit their task URLs here.
-CREATE TABLE IF NOT EXISTS task_submissions (
+CREATE TABLE IF NOT EXISTS academy_task_submissions (
   id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   participant  text NOT NULL,
   task_id      integer NOT NULL,
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS task_submissions (
 
 -- ─── 3. QUIZ SCORES (Post Test — in-dashboard) ─────────────
 -- One row per participant per session quiz attempt.
-CREATE TABLE IF NOT EXISTS quiz_scores (
+CREATE TABLE IF NOT EXISTS academy_quiz_scores (
   id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   participant   text NOT NULL,
   email         text,
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS quiz_scores (
 
 -- ─── 4. FINAL PROJECTS ──────────────────────────────────────
 -- One row per participant; upserted when they submit their URL.
-CREATE TABLE IF NOT EXISTS final_projects (
+CREATE TABLE IF NOT EXISTS academy_final_projects (
   id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   participant  text UNIQUE NOT NULL,
   url          text NOT NULL,
@@ -50,24 +50,24 @@ CREATE TABLE IF NOT EXISTS final_projects (
 );
 
 -- ─── ROW LEVEL SECURITY ─────────────────────────────────────
-ALTER TABLE attendance       ENABLE ROW LEVEL SECURITY;
-ALTER TABLE task_submissions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE quiz_scores      ENABLE ROW LEVEL SECURITY;
-ALTER TABLE final_projects   ENABLE ROW LEVEL SECURITY;
+ALTER TABLE academy_attendance       ENABLE ROW LEVEL SECURITY;
+ALTER TABLE academy_task_submissions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE academy_quiz_scores      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE academy_final_projects   ENABLE ROW LEVEL SECURITY;
 
 -- Allow all reads (public dashboard)
-CREATE POLICY "public read attendance"       ON attendance       FOR SELECT USING (true);
-CREATE POLICY "public read task_submissions" ON task_submissions FOR SELECT USING (true);
-CREATE POLICY "public read quiz_scores"      ON quiz_scores      FOR SELECT USING (true);
-CREATE POLICY "public read final_projects"   ON final_projects   FOR SELECT USING (true);
+CREATE POLICY "public read academy_attendance"       ON academy_attendance       FOR SELECT USING (true);
+CREATE POLICY "public read academy_task_submissions" ON academy_task_submissions FOR SELECT USING (true);
+CREATE POLICY "public read academy_quiz_scores"      ON academy_quiz_scores      FOR SELECT USING (true);
+CREATE POLICY "public read academy_final_projects"   ON academy_final_projects   FOR SELECT USING (true);
 
 -- Allow anon writes (participants submit their own data)
-CREATE POLICY "anon insert task_submissions" ON task_submissions FOR INSERT WITH CHECK (true);
-CREATE POLICY "anon insert quiz_scores"      ON quiz_scores      FOR INSERT WITH CHECK (true);
-CREATE POLICY "anon upsert final_projects"   ON final_projects   FOR ALL    USING (true) WITH CHECK (true);
+CREATE POLICY "anon insert academy_task_submissions" ON academy_task_submissions FOR INSERT WITH CHECK (true);
+CREATE POLICY "anon insert academy_quiz_scores"      ON academy_quiz_scores      FOR INSERT WITH CHECK (true);
+CREATE POLICY "anon upsert academy_final_projects"   ON academy_final_projects   FOR ALL    USING (true) WITH CHECK (true);
 
 -- ─── SEED: initial attendance (Sesi 1–5 completed) ──────────
-INSERT INTO attendance (participant, session_no, attended) VALUES
+INSERT INTO academy_attendance (participant, session_no, attended) VALUES
   ('Kalvin Reza Pratama',   1, true),  ('Kalvin Reza Pratama',   2, true),  ('Kalvin Reza Pratama',   3, true),  ('Kalvin Reza Pratama',   4, true),  ('Kalvin Reza Pratama',   5, true),
   ('Rafi Fistra Ali',       1, true),  ('Rafi Fistra Ali',       2, true),  ('Rafi Fistra Ali',       3, true),  ('Rafi Fistra Ali',       4, true),  ('Rafi Fistra Ali',       5, true),
   ('Binar Aulia Setyawan',  1, true),  ('Binar Aulia Setyawan',  2, true),  ('Binar Aulia Setyawan',  3, true),  ('Binar Aulia Setyawan',  4, true),  ('Binar Aulia Setyawan',  5, false),
@@ -83,30 +83,30 @@ ON CONFLICT (participant, session_no) DO NOTHING;
 -- ─── 5. POST-TEST CONFIG (Admin) ────────────────────────────
 -- Admin sets how many post-test sessions are active.
 -- Only ever one row (singleton). Update via admin page.
-CREATE TABLE IF NOT EXISTS post_test_config (
+CREATE TABLE IF NOT EXISTS academy_post_test_config (
   id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   total_sessions integer NOT NULL DEFAULT 1 CHECK (total_sessions BETWEEN 1 AND 15),
   updated_at     timestamptz DEFAULT now()
 );
-INSERT INTO post_test_config (total_sessions) VALUES (1)
+INSERT INTO academy_post_test_config (total_sessions) VALUES (1)
 ON CONFLICT DO NOTHING;
 
-ALTER TABLE post_test_config ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "public read post_test_config"  ON post_test_config FOR SELECT USING (true);
-CREATE POLICY "anon update post_test_config"  ON post_test_config FOR UPDATE USING (true) WITH CHECK (true);
+ALTER TABLE academy_post_test_config ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "public read academy_post_test_config"  ON academy_post_test_config FOR SELECT USING (true);
+CREATE POLICY "anon update academy_post_test_config"  ON academy_post_test_config FOR UPDATE USING (true) WITH CHECK (true);
 
 -- ─── 6. SITE CONFIG (key-value) ─────────────────────────────
 -- General site-wide config: tata tertib, contacts, links, etc.
-CREATE TABLE IF NOT EXISTS site_config (
+CREATE TABLE IF NOT EXISTS academy_site_config (
   key        text PRIMARY KEY,
   value      text NOT NULL DEFAULT '',
   updated_at timestamptz DEFAULT now()
 );
-ALTER TABLE site_config ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "public read site_config"  ON site_config FOR SELECT USING (true);
-CREATE POLICY "anon write site_config"   ON site_config FOR ALL    USING (true) WITH CHECK (true);
+ALTER TABLE academy_site_config ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "public read academy_site_config"  ON academy_site_config FOR SELECT USING (true);
+CREATE POLICY "anon write academy_site_config"   ON academy_site_config FOR ALL    USING (true) WITH CHECK (true);
 
-INSERT INTO site_config (key, value) VALUES
+INSERT INTO academy_site_config (key, value) VALUES
   ('attendance_link',      'https://forms.gle/mapid-academy-attendance'),
   ('discord_link',         'https://discord.gg/mapid'),
   ('zoom_link',            'https://zoom.us/j/88219283192?pwd=mapidacademy'),
@@ -127,17 +127,17 @@ INSERT INTO site_config (key, value) VALUES
 ON CONFLICT (key) DO NOTHING;
 
 -- ─── 7. CONFIG PARTICIPANTS ─────────────────────────────────
-CREATE TABLE IF NOT EXISTS config_participants (
+CREATE TABLE IF NOT EXISTS academy_config_participants (
   id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name       text UNIQUE NOT NULL,
   email      text DEFAULT '',
   sort_order integer DEFAULT 0
 );
-ALTER TABLE config_participants ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "public read config_participants" ON config_participants FOR SELECT USING (true);
-CREATE POLICY "anon write config_participants"  ON config_participants FOR ALL    USING (true) WITH CHECK (true);
+ALTER TABLE academy_config_participants ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "public read academy_config_participants" ON academy_config_participants FOR SELECT USING (true);
+CREATE POLICY "anon write academy_config_participants"  ON academy_config_participants FOR ALL    USING (true) WITH CHECK (true);
 
-INSERT INTO config_participants (name, email, sort_order) VALUES
+INSERT INTO academy_config_participants (name, email, sort_order) VALUES
   ('Kalvin Reza Pratama',    'kalvin@gmail.com',    1),
   ('Rafi Fistra Ali',        'rafi@gmail.com',      2),
   ('Binar Aulia Setyawan',   'binar@gmail.com',     3),
@@ -151,18 +151,18 @@ INSERT INTO config_participants (name, email, sort_order) VALUES
 ON CONFLICT (name) DO NOTHING;
 
 -- ─── 8. CONFIG TASKS ────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS config_tasks (
+CREATE TABLE IF NOT EXISTS academy_config_tasks (
   id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   task_order integer UNIQUE NOT NULL,
   number     text NOT NULL,
   title      text NOT NULL,
   phase      text DEFAULT ''
 );
-ALTER TABLE config_tasks ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "public read config_tasks" ON config_tasks FOR SELECT USING (true);
-CREATE POLICY "anon write config_tasks"  ON config_tasks FOR ALL    USING (true) WITH CHECK (true);
+ALTER TABLE academy_config_tasks ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "public read academy_config_tasks" ON academy_config_tasks FOR SELECT USING (true);
+CREATE POLICY "anon write academy_config_tasks"  ON academy_config_tasks FOR ALL    USING (true) WITH CHECK (true);
 
-INSERT INTO config_tasks (task_order, number, title, phase) VALUES
+INSERT INTO academy_config_tasks (task_order, number, title, phase) VALUES
   (1, 'Tugas 1-2',   'Spatial Preparation — Format GIS & Problem Solving',              'GIS & Location Value'),
   (2, 'Tugas 3',     'Project Definition — Ide WebGIS & Data Spasial Awal',             'GIS & Location Value'),
   (3, 'Tugas 4',     'Web Structure & Dashboard UI — HTML & CSS',                       'HTML & CSS'),
@@ -174,7 +174,7 @@ INSERT INTO config_tasks (task_order, number, title, phase) VALUES
 ON CONFLICT (task_order) DO NOTHING;
 
 -- ─── 9. CONFIG MATERI ───────────────────────────────────────
-CREATE TABLE IF NOT EXISTS config_materi (
+CREATE TABLE IF NOT EXISTS academy_config_materi (
   id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   session_no   integer UNIQUE NOT NULL,
   number_label text NOT NULL,
@@ -185,13 +185,13 @@ CREATE TABLE IF NOT EXISTS config_materi (
   youtube_id   text DEFAULT '',
   topics       jsonb DEFAULT '[]'
 );
-ALTER TABLE config_materi ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "public read config_materi" ON config_materi FOR SELECT USING (true);
-CREATE POLICY "anon write config_materi"  ON config_materi FOR ALL    USING (true) WITH CHECK (true);
+ALTER TABLE academy_config_materi ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "public read academy_config_materi" ON academy_config_materi FOR SELECT USING (true);
+CREATE POLICY "anon write academy_config_materi"  ON academy_config_materi FOR ALL    USING (true) WITH CHECK (true);
 
 -- ─── 10. QUIZ QUESTIONS (Admin editable) ────────────────────
 -- Admin adds/edits quiz questions per session_key (1-15)
-CREATE TABLE IF NOT EXISTS quiz_questions (
+CREATE TABLE IF NOT EXISTS academy_quiz_questions (
   id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   session_key    integer NOT NULL CHECK (session_key BETWEEN 1 AND 15),
   sort_order     integer NOT NULL DEFAULT 0,
@@ -200,11 +200,10 @@ CREATE TABLE IF NOT EXISTS quiz_questions (
   correct_answer integer NOT NULL DEFAULT 0 CHECK (correct_answer BETWEEN 0 AND 3),
   image_url      text DEFAULT ''
 );
-ALTER TABLE quiz_questions ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "public read quiz_questions" ON quiz_questions FOR SELECT USING (true);
-CREATE POLICY "anon write quiz_questions"  ON quiz_questions FOR ALL    USING (true) WITH CHECK (true);
+ALTER TABLE academy_quiz_questions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "public read academy_quiz_questions" ON academy_quiz_questions FOR SELECT USING (true);
+CREATE POLICY "anon write academy_quiz_questions"  ON academy_quiz_questions FOR ALL    USING (true) WITH CHECK (true);
 
 -- ─── 11. SITE CONFIG: total attendance sessions ──────────────
--- Already in site_config key-value, just add the key:
-INSERT INTO site_config (key, value) VALUES ('total_absensi_sessions', '17')
+INSERT INTO academy_site_config (key, value) VALUES ('total_absensi_sessions', '17')
 ON CONFLICT (key) DO NOTHING;

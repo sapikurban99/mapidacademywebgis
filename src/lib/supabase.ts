@@ -39,3 +39,77 @@ export interface FinalProjectRow {
   submitted_at?: string;
   updated_at?: string;
 }
+
+export interface ParticipantRow {
+  id?: string;
+  name: string;
+  email: string;
+  sort_order: number;
+}
+
+export interface TaskRow {
+  id?: string;
+  task_order: number;
+  number: string;
+  title: string;
+  phase: string;
+}
+
+export interface SessionRow {
+  id?: string;
+  session_no: number;
+  number_label: string;
+  title: string;
+  topic: string;
+  tools: string;
+  pic: string;
+  outcome: string;
+  time_label: string;
+  session_date: string;
+  sort_order: number;
+}
+
+export interface SessionWithStatus extends SessionRow {
+  status: "Completed" | "Today" | "Upcoming";
+}
+
+export interface MateriRow {
+  id?: string;
+  session_no: number;
+  number_label: string;
+  title: string;
+  category: string;
+  materi_url: string;
+  playlist_url: string;
+  youtube_id: string;
+  topics: string[];
+}
+
+export interface SoftwareRow {
+  id?: string;
+  software_key: string;
+  name: string;
+  version: string;
+  description: string;
+  guide_steps: string[];
+  test_command: string;
+  download_url: string;
+  redeem_code: string;
+  sort_order: number;
+}
+
+export interface FinalProjectSectionRow {
+  id?: string;
+  section_key: string;
+  content: Record<string, unknown>;
+}
+
+export interface QuizQuestionRow {
+  id?: string;
+  session_key: number;
+  sort_order: number;
+  question_text: string;
+  options: string[];
+  correct_answer: number;
+  image_url: string;
+}

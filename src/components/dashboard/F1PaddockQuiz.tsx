@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { BOOTCAMP_QUIZZES, QuizQuestion } from "../../lib/quiz-data";
+import { QuizQuestion } from "../../lib/quiz-data";
 import { sfx } from "../../lib/sound";
 import { supabase } from "../../lib/supabase";
 import {
@@ -106,6 +106,40 @@ export default function F1PaddockQuiz() {
   const [standings, setStandings] = useState<ClassStanding[]>([]);
   const [collectiveQuizzes, setCollectiveQuizzes] = useState<CollectiveQuizEntry[]>([]);
   
+  // Questions bank fetched from Supabase
+  const [questionsBank, setQuestionsBank] = useState<Record<number, QuizQuestion[]>>({});
+  const [questionsLoaded, setQuestionsLoaded] = useState(false);
+
+  // Fetch all quiz questions from Supabase on mount
+  useEffect(() => {
+    async function loadQuestions() {
+      const { data } = await supabase
+        .from("academy_quiz_questions")
+        .select("session_key, sort_order, question_text, options, correct_answer, image_url, explanation")
+        .order("session_key")
+        .order("sort_order");
+
+      if (data) {
+        const bank: Record<number, QuizQuestion[]> = {};
+        for (const row of data) {
+          const sk = row.session_key;
+          if (!bank[sk]) bank[sk] = [];
+          bank[sk].push({
+            id: bank[sk].length + 1,
+            question: row.question_text,
+            image: row.image_url || undefined,
+            options: row.options,
+            correctAnswer: row.correct_answer,
+            explanation: row.explanation || "",
+          });
+        }
+        setQuestionsBank(bank);
+      }
+      setQuestionsLoaded(true);
+    }
+    loadQuestions();
+  }, []);
+
   // Standing Session Limit & Database Tab state
   const [leaderboardSessionLimit, setLeaderboardSessionLimit] = useState<number>(6);
   const [activeDbTab, setActiveDbTab] = useState<"checklist" | "log">("checklist");
@@ -190,7 +224,7 @@ export default function F1PaddockQuiz() {
 
     // Load collective quizzes from Supabase
     const { data: quizData } = await supabase
-      .from("quiz_scores")
+      .from("academy_quiz_scores")
       .select("participant, session_key, score, completed_at")
       .order("completed_at", { ascending: false });
 
@@ -266,14 +300,14 @@ export default function F1PaddockQuiz() {
       const activeEmail = localStorage.getItem("mapid_active_useremail") || "";
       // Get next attempt number for this user+session
       const { data: prevAttempts } = await supabase
-        .from("quiz_scores")
+        .from("academy_quiz_scores")
         .select("attempt_no")
         .eq("participant", activeUserName)
         .eq("session_key", selectedSession)
         .order("attempt_no", { ascending: false })
         .limit(1);
       const nextAttemptNo = prevAttempts && prevAttempts.length > 0 ? prevAttempts[0].attempt_no + 1 : 1;
-      await supabase.from("quiz_scores").insert({
+      await supabase.from("academy_quiz_scores").insert({
         participant: activeUserName,
         email: activeEmail,
         session_key: selectedSession,
@@ -310,7 +344,7 @@ export default function F1PaddockQuiz() {
 
 
   const startQuiz = () => {
-    const qList = BOOTCAMP_QUIZZES[selectedSession];
+    const qList = questionsBank[selectedSession];
     if (!qList || qList.length === 0) {
       alert("Soal kuis untuk sesi ini belum tersedia!");
       return;
@@ -419,8 +453,13 @@ export default function F1PaddockQuiz() {
                 </select>
               </div>
 
-              <button onClick={startQuiz} className={styles.launchBtn} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
-                <Play size={14} /> MULAI POST TEST
+              <button
+                onClick={startQuiz}
+                className={styles.launchBtn}
+                disabled={!questionsLoaded || !questionsBank[selectedSession]}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", opacity: !questionsLoaded || !questionsBank[selectedSession] ? 0.5 : 1 }}
+              >
+                <Play size={14} /> {questionsLoaded ? "MULAI POST TEST" : "MEMUAT SOAL..."}
               </button>
             </div>
 
