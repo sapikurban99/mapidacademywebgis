@@ -41,8 +41,6 @@ Platform dashboard terintegrasi untuk peserta **WebGIS Development Bootcamp Batc
 | Link Pendukung | CRUD tautan tambahan |
 | Final Project | Pantau pengumpulan FP peserta |
 
-Login admin: `admin` / `admin123` (hardcoded)
-
 ## Getting Started
 
 ### Prasyarat
