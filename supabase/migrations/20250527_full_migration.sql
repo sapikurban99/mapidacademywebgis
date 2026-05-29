@@ -388,3 +388,24 @@ INSERT INTO academy_site_config (key, value) VALUES
   ('fasilitator_2_phone',         '+6281234567891'),
   ('quiz_sessions_map',           '{"1":"Sesi 1 & 2: Onboarding & Get to Know WebGIS","2":"Sesi 3: GIS Fundamental","3":"Sesi 4: Location Value with GEO MAPID","4":"Sesi 5: Introduction to VS Code, Git, HTML, CSS, and JS","5":"Sesi 6: HTML and CSS Part 2","6":"Sesi 7: JavaScript Part 1","7":"Sesi 8: JavaScript Part 2","8":"Sesi 9: Introduction JavaScript Modern","9":"Sesi 10: WebMap & MapLibre Part 1","10":"Sesi 11: WebMap & MapLibre Part 2","11":"Sesi 12: WebMap & MapLibre Part 3","12":"Sesi 13: Feature Implementation Part 1","13":"Sesi 14: Feature Implementation Part 2","14":"Sesi 15: WebGIS Code Refinement and Deployment","15":"Bonus: Python Spatial Data"}')
 ON CONFLICT (key) DO NOTHING;
+
+-- ═══════════════════════════════════════════════════════════════
+-- 8. CONFIG LINKS — link pendukung
+-- ═══════════════════════════════════════════════════════════════
+CREATE TABLE IF NOT EXISTS academy_config_links (
+  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  title      text NOT NULL,
+  url        text NOT NULL,
+  sort_order integer NOT NULL DEFAULT 0
+);
+ALTER TABLE academy_config_links ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "public read academy_config_links" ON academy_config_links FOR SELECT USING (true);
+CREATE POLICY "anon write academy_config_links"  ON academy_config_links FOR ALL USING (true) WITH CHECK (true);
+
+INSERT INTO academy_config_links (title, url, sort_order) VALUES
+  ('Link Discord', 'https://discord.gg/ExtsnzAm', 1),
+  ('Virtual Background MAPID Academy', 'https://drive.google.com/file/d/1MLTl6-V9O1daqE4tIHKzQwN7vS93i84b/view?usp=sharing', 2),
+  ('Guideline for Final Project', 'https://www.canva.com/design/DAG1G1pqIW4/yQHiCzJJDDgG1SljerKq2A/view', 3),
+  ('Referensi Final Project', 'https://docs.google.com/spreadsheets/d/1zmQY6Ea_Od8TYLFqBqnjLihSCljufE3WVXiYbEaeHe8/edit', 4),
+  ('Template Dokumentasi Final Project', 'https://docs.google.com/document/d/1qWdFr_LlQK3MgXb8TTLARQwsBa6MLNwD/edit', 5)
+ON CONFLICT DO NOTHING;

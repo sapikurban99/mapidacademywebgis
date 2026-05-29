@@ -2,6 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   ScrollText,
@@ -10,6 +11,11 @@ import {
   FolderOpen,
   PlayCircle,
   Trophy,
+  CalendarDays,
+  Wrench,
+  Link2,
+  LogOut,
+  Eye,
   type LucideIcon,
 } from "lucide-react";
 import styles from "./Sidebar.module.css";
@@ -29,23 +35,31 @@ const ADMIN_MENU: MenuSection[] = [
   {
     title: "MAIN MENU",
     items: [
-      { id: "overview",  name: "Dashboard",         icon: LayoutDashboard },
+      { id: "overview",  name: "Dashboard",           icon: LayoutDashboard },
       { id: "tatib",     name: "Tata Tertib & Kontak", icon: ScrollText },
+      { id: "schedule",  name: "Jadwal & Sesi",       icon: CalendarDays },
     ],
   },
   {
     title: "ACADEMICS",
     items: [
-      { id: "absensi",   name: "Absensi",            icon: ClipboardCheck },
-      { id: "posttest",  name: "Post Test",           icon: BookOpenCheck },
-      { id: "tugas",     name: "Monitoring Tugas",    icon: FolderOpen },
-      { id: "materi",    name: "Materi & Rekaman",    icon: PlayCircle },
+      { id: "absensi",   name: "Absensi",              icon: ClipboardCheck },
+      { id: "posttest",  name: "Post Test",             icon: BookOpenCheck },
+      { id: "tugas",     name: "Monitoring Tugas",      icon: FolderOpen },
+      { id: "materi",    name: "Materi & Rekaman",      icon: PlayCircle },
+    ],
+  },
+  {
+    title: "RESOURCES",
+    items: [
+      { id: "software",  name: "Platform & Software",   icon: Wrench },
+      { id: "links",     name: "Link Pendukung",        icon: Link2 },
     ],
   },
   {
     title: "PORTFOLIO",
     items: [
-      { id: "final",     name: "Final Project",       icon: Trophy },
+      { id: "final",     name: "Final Project",         icon: Trophy },
     ],
   },
 ];
@@ -53,6 +67,12 @@ const ADMIN_MENU: MenuSection[] = [
 export default function AdminSidebar() {
   const searchParams = useSearchParams();
   const currentTab = searchParams.get("tab") || "overview";
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await fetch("/api/admin/auth/logout", { method: "POST" });
+    router.push("/admin/login");
+  };
 
   return (
     <aside className={styles.sidebar}>
@@ -97,8 +117,12 @@ export default function AdminSidebar() {
       </nav>
 
       <div className={styles.sidebarFooter}>
-        <span className={styles.batchLabel}>Admin Panel</span>
-        <span className={styles.batchValue}>MAPID Academy</span>
+        <Link href="/" className={styles.actionBtn}>
+          <Eye size={14} /> Lihat Dashboard
+        </Link>
+        <button onClick={handleLogout} className={styles.logoutBtn}>
+          <LogOut size={14} /> Logout
+        </button>
       </div>
     </aside>
   );

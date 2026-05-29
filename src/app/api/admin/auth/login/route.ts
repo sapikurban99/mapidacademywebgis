@@ -5,8 +5,8 @@ const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "mapid-academy-dummy-secret-2025"
 );
 
-const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "admin";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
+const ADMIN_USERNAME = "admin";
+const ADMIN_PASSWORD = "admin123";
 
 export async function POST(request: Request) {
   try {

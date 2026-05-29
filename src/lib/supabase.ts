@@ -113,3 +113,10 @@ export interface QuizQuestionRow {
   correct_answer: number;
   image_url: string;
 }
+
+export interface LinkRow {
+  id?: string;
+  title: string;
+  url: string;
+  sort_order: number;
+}

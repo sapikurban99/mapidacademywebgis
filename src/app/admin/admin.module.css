@@ -675,4 +675,21 @@
 @media (max-width: 1000px) {
   .statsRow { grid-template-columns: 1fr 1fr; }
   .page { padding: 18px 14px; }
+  .formGrid { grid-template-columns: 1fr; }
+  .panelHeader { flex-direction: column; }
+}
+
+@media (max-width: 640px) {
+  .statsRow { grid-template-columns: 1fr; }
+  .page { padding: 14px 10px; gap: 16px; }
+  .card { padding: 16px 14px; }
+  .panelHeader h2 { font-size: 17px; }
+  .materiCardHead { padding: 10px 12px; }
+  .materiCardHeadLeft { gap: 6px; flex-wrap: wrap; }
+  .materiCardTitle { font-size: 12px; }
+  .materiCardBody { padding: 14px; }
+  .attendanceGrid { font-size: 10px; }
+  .scoresTable { font-size: 10px; }
+  .listRow { padding: 8px 10px; gap: 6px; }
+  .input, .textarea, .select { font-size: 12px; padding: 7px 10px; }
 }

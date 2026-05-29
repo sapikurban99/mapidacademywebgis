@@ -7,8 +7,10 @@ import {
   Users, ClipboardCheck, BookOpenCheck, FolderOpen,
   LayoutDashboard, ScrollText, PlayCircle, Trophy,
   ChevronDown, ChevronUp, BarChart2, ImageIcon,
+  CalendarDays, Wrench, Link2,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import type { SessionRow, SoftwareRow, LinkRow } from "@/lib/supabase";
 import styles from "./admin.module.css";
 
 // ─── Types ───────────────────────────────────────────────
@@ -60,10 +62,13 @@ function AdminContent() {
     <div className={styles.page}>
       {tab === "overview"  && <TabOverview />}
       {tab === "tatib"     && <TabTatib />}
+      {tab === "schedule"  && <TabSchedule />}
       {tab === "absensi"   && <TabAbsensi />}
       {tab === "posttest"  && <TabPostTest />}
       {tab === "tugas"     && <TabTugas />}
       {tab === "materi"    && <TabMateri />}
+      {tab === "software"  && <TabSoftware />}
+      {tab === "links"     && <TabLinks />}
       {tab === "final"     && <TabFinal />}
     </div>
   );
@@ -1040,6 +1045,327 @@ function TabFinal() {
             ))}
           </div>
         )}
+      </div>
+    </>
+  );
+}
+
+// ════════════════════════════════════════════════════════
+// TAB: SCHEDULE — Kelola Sesi Bootcamp
+// ════════════════════════════════════════════════════════
+function TabSchedule() {
+  const [sessions, setSessions] = useState<SessionRow[]>([]);
+  const [openIdx, setOpenIdx]   = useState<number | null>(null);
+  const [saving, setSaving]     = useState<number | null>(null);
+  const [saved, setSaved]       = useState<number | null>(null);
+  const [loading, setLoading]   = useState(true);
+
+  useEffect(() => {
+    supabase.from("academy_config_sessions").select("*").order("sort_order").then(({ data }) => {
+      setSessions((data as SessionRow[]) || []);
+      setLoading(false);
+    });
+  }, []);
+
+  const update = (i: number, f: keyof SessionRow, v: string | number) =>
+    setSessions(prev => prev.map((s, idx) => idx === i ? { ...s, [f]: v } : s));
+
+  const handleSave = async (i: number) => {
+    setSaving(i);
+    await supabase.from("academy_config_sessions").upsert(sessions[i], { onConflict: "session_no" });
+    setSaving(null); setSaved(i); setTimeout(() => setSaved(null), 2500);
+  };
+
+  const addSession = () => {
+    const nextNo = (sessions[sessions.length - 1]?.session_no || 0) + 1;
+    setSessions(prev => [...prev, {
+      session_no: nextNo, number_label: `Sesi ${nextNo}`, title: "", topic: "", tools: "", pic: "",
+      outcome: "", time_label: "19.00 - 21.30", session_date: "", sort_order: nextNo,
+    }]);
+    setOpenIdx(sessions.length);
+  };
+
+  const removeSession = async (i: number) => {
+    const s = sessions[i];
+    if (!confirm(`Hapus ${s.number_label}: ${s.title}?`)) return;
+    await supabase.from("academy_config_sessions").delete().eq("session_no", s.session_no);
+    setSessions(prev => prev.filter((_, idx) => idx !== i));
+  };
+
+  if (loading) return <div className={styles.loading}>Memuat data sesi...</div>;
+
+  return (
+    <>
+      <div className={styles.panelHeader}>
+        <div>
+          <h2><CalendarDays size={20} /> Jadwal & Sesi Bootcamp</h2>
+          <p>Kelola detail setiap pertemuan: judul, topik, alat, PIC, outcome, tanggal, dan waktu</p>
+        </div>
+        <button className={styles.saveBtn} onClick={addSession} style={{ background: "#0ea5e9" }}>
+          <Plus size={14} /> Tambah Sesi
+        </button>
+      </div>
+
+      {sessions.map((item, i) => {
+        const isOpen = openIdx === i;
+        return (
+          <div key={item.session_no} className={styles.materiCard}>
+            <div className={`${styles.materiCardHead} ${isOpen ? styles.materiCardHeadOpen : ""}`}
+              onClick={() => setOpenIdx(isOpen ? null : i)}>
+              <div className={styles.materiCardHeadLeft}>
+                <span className={styles.sessionNumBadge}>{item.number_label}</span>
+                <span className={styles.materiCardTitle}>{item.title || <i style={{ color: "#94a3b8" }}>Belum ada judul</i>}</span>
+                <span style={{ fontSize: 11, color: "#94a3b8" }}>{item.session_date}</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <button className={styles.deleteBtn} onClick={(e) => { e.stopPropagation(); removeSession(i); }}><Trash2 size={14} /></button>
+                {isOpen ? <ChevronUp size={16} color="#94a3b8" /> : <ChevronDown size={16} color="#94a3b8" />}
+              </div>
+            </div>
+            {isOpen && (
+              <div className={styles.materiCardBody}>
+                <div className={styles.formGrid}>
+                  <div className={styles.field}><label>Label Sesi</label>
+                    <input className={styles.input} value={item.number_label} onChange={e => update(i, "number_label", e.target.value)} /></div>
+                  <div className={styles.field}><label>Nomor Sesi</label>
+                    <input className={styles.input} type="number" value={item.session_no} onChange={e => update(i, "session_no", Number(e.target.value))} /></div>
+                </div>
+                <div className={styles.formGrid}>
+                  <div className={styles.field}><label>Sort Order</label>
+                    <input className={styles.input} type="number" value={item.sort_order} onChange={e => update(i, "sort_order", Number(e.target.value))} /></div>
+                  <div className={styles.field}><label>Tanggal (YYYY-MM-DD)</label>
+                    <input className={styles.input} value={item.session_date} onChange={e => update(i, "session_date", e.target.value)} placeholder="2025-03-19" /></div>
+                </div>
+                <div className={styles.field}><label>Judul Sesi</label>
+                  <input className={styles.input} value={item.title} onChange={e => update(i, "title", e.target.value)} /></div>
+                <div className={styles.field}><label>Materi / Topik</label>
+                  <textarea className={styles.textarea} rows={3} value={item.topic} onChange={e => update(i, "topic", e.target.value)} /></div>
+                <div className={styles.formGrid}>
+                  <div className={styles.field}><label>Alat (Tools)</label>
+                    <input className={styles.input} value={item.tools} onChange={e => update(i, "tools", e.target.value)} /></div>
+                  <div className={styles.field}><label>Mentor (PIC)</label>
+                    <input className={styles.input} value={item.pic} onChange={e => update(i, "pic", e.target.value)} /></div>
+                </div>
+                <div className={styles.field}><label>Waktu Kelas</label>
+                  <input className={styles.input} value={item.time_label} onChange={e => update(i, "time_label", e.target.value)} placeholder="19.00 - 21.30" /></div>
+                <div className={styles.field}><label>Capaian Hasil Belajar (Outcome)</label>
+                  <textarea className={styles.textarea} rows={3} value={item.outcome} onChange={e => update(i, "outcome", e.target.value)} /></div>
+                <div className={styles.rowActions}>
+                  {saved === i && <span className={styles.savedMsg}><CheckCircle size={14} /> Tersimpan</span>}
+                  <button className={styles.saveBtn} onClick={() => handleSave(i)} disabled={saving === i}>
+                    <Save size={14} /> {saving === i ? "Menyimpan..." : "Simpan Sesi Ini"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </>
+  );
+}
+
+// ════════════════════════════════════════════════════════
+// TAB: SOFTWARE — Kelola Platform & Software
+// ════════════════════════════════════════════════════════
+function TabSoftware() {
+  const [items, setItems]     = useState<SoftwareRow[]>([]);
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
+  const [saving, setSaving]   = useState<number | null>(null);
+  const [saved, setSaved]     = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase.from("academy_config_software").select("*").order("sort_order").then(({ data }) => {
+      const parsed = (data || []).map((r: Record<string, unknown>) => ({
+        ...r, guide_steps: Array.isArray(r.guide_steps) ? r.guide_steps : [],
+      }));
+      setItems(parsed as unknown as SoftwareRow[]);
+      setLoading(false);
+    });
+  }, []);
+
+  const update = (i: number, f: keyof SoftwareRow, v: string | string[] | number) =>
+    setItems(prev => prev.map((s, idx) => idx === i ? { ...s, [f]: v } : s));
+
+  const addStep = (i: number) => setItems(prev => prev.map((s, idx) => idx === i ? { ...s, guide_steps: [...s.guide_steps, ""] } : s));
+  const updateStep = (i: number, si: number, v: string) => setItems(prev =>
+    prev.map((s, idx) => idx === i ? { ...s, guide_steps: s.guide_steps.map((step, j) => j === si ? v : step) } : s));
+  const removeStep = (i: number, si: number) => setItems(prev =>
+    prev.map((s, idx) => idx === i ? { ...s, guide_steps: s.guide_steps.filter((_, j) => j !== si) } : s));
+
+  const handleSave = async (i: number) => {
+    setSaving(i);
+    await supabase.from("academy_config_software").upsert(items[i] as unknown as Record<string, unknown>, { onConflict: "software_key" });
+    setSaving(null); setSaved(i); setTimeout(() => setSaved(null), 2500);
+  };
+
+  const addItem = () => {
+    setItems(prev => [...prev, {
+      software_key: "", name: "", version: "", description: "", guide_steps: [] as string[],
+      test_command: "", download_url: "", redeem_code: "",
+      sort_order: (prev[prev.length-1]?.sort_order || 0) + 1,
+    }]);
+    setOpenIdx(items.length);
+  };
+
+  const removeItem = async (i: number) => {
+    const s = items[i];
+    if (!confirm(`Hapus software "${s.name}"?`)) return;
+    await supabase.from("academy_config_software").delete().eq("software_key", s.software_key);
+    setItems(prev => prev.filter((_, idx) => idx !== i));
+  };
+
+  if (loading) return <div className={styles.loading}>Memuat data software...</div>;
+
+  return (
+    <>
+      <div className={styles.panelHeader}>
+        <div>
+          <h2><Wrench size={20} /> Platform & Software</h2>
+          <p>Kelola daftar software, panduan instalasi, kode akses, dan tautan download</p>
+        </div>
+        <button className={styles.saveBtn} onClick={addItem} style={{ background: "#0ea5e9" }}>
+          <Plus size={14} /> Tambah Software
+        </button>
+      </div>
+
+      {items.map((item, i) => {
+        const isOpen = openIdx === i;
+        return (
+          <div key={i} className={styles.materiCard}>
+            <div className={`${styles.materiCardHead} ${isOpen ? styles.materiCardHeadOpen : ""}`}
+              onClick={() => setOpenIdx(isOpen ? null : i)}>
+              <div className={styles.materiCardHeadLeft}>
+                <span className={styles.sessionNumBadge}>{item.software_key || "new"}</span>
+                <span className={styles.materiCardTitle}>{item.name || <i style={{ color: "#94a3b8" }}>Belum ada nama</i>}</span>
+                <span style={{ fontSize: 11, color: "#94a3b8" }}>{item.version}</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <button className={styles.deleteBtn} onClick={(e) => { e.stopPropagation(); removeItem(i); }}><Trash2 size={14} /></button>
+                {isOpen ? <ChevronUp size={16} color="#94a3b8" /> : <ChevronDown size={16} color="#94a3b8" />}
+              </div>
+            </div>
+            {isOpen && (
+              <div className={styles.materiCardBody}>
+                <div className={styles.formGrid}>
+                  <div className={styles.field}><label>Software Key (unik)</label>
+                    <input className={styles.input} value={item.software_key} onChange={e => update(i, "software_key", e.target.value)} placeholder="qgis" /></div>
+                  <div className={styles.field}><label>Nama</label>
+                    <input className={styles.input} value={item.name} onChange={e => update(i, "name", e.target.value)} /></div>
+                </div>
+                <div className={styles.formGrid}>
+                  <div className={styles.field}><label>Versi</label>
+                    <input className={styles.input} value={item.version} onChange={e => update(i, "version", e.target.value)} /></div>
+                  <div className={styles.field}><label>Sort Order</label>
+                    <input className={styles.input} type="number" value={item.sort_order} onChange={e => update(i, "sort_order", Number(e.target.value))} /></div>
+                </div>
+                <div className={styles.field}><label>Deskripsi</label>
+                  <textarea className={styles.textarea} rows={2} value={item.description} onChange={e => update(i, "description", e.target.value)} /></div>
+                <div className={styles.formGrid}>
+                  <div className={styles.field}><label>URL Download</label>
+                    <input className={styles.input} value={item.download_url} onChange={e => update(i, "download_url", e.target.value)} placeholder="https://..." /></div>
+                  <div className={styles.field}><label>Redeem Code</label>
+                    <input className={styles.input} value={item.redeem_code} onChange={e => update(i, "redeem_code", e.target.value)} /></div>
+                </div>
+                <div className={styles.field}><label>Test Command (Terminal)</label>
+                  <input className={styles.input} value={item.test_command} onChange={e => update(i, "test_command", e.target.value)} placeholder="qgis --version" /></div>
+                <div className={styles.field}>
+                  <label>Langkah Instalasi / Setup</label>
+                  <div className={styles.topicsEditor}>
+                    {item.guide_steps.map((step: string, si: number) => (
+                      <div key={si} className={styles.topicRow}>
+                        <input className={styles.topicInput} value={step} onChange={e => updateStep(i, si, e.target.value)} placeholder={`Langkah ${si+1}...`} />
+                        <button className={styles.deleteBtn} onClick={() => removeStep(i, si)}><Trash2 size={13} /></button>
+                      </div>
+                    ))}
+                    <button className={styles.addTopicBtn} onClick={() => addStep(i)}><Plus size={12} /> Tambah Langkah</button>
+                  </div>
+                </div>
+                <div className={styles.rowActions}>
+                  {saved === i && <span className={styles.savedMsg}><CheckCircle size={14} /> Tersimpan</span>}
+                  <button className={styles.saveBtn} onClick={() => handleSave(i)} disabled={saving === i}>
+                    <Save size={14} /> {saving === i ? "Menyimpan..." : "Simpan Software Ini"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </>
+  );
+}
+
+// ════════════════════════════════════════════════════════
+// TAB: LINKS — Kelola Link Pendukung
+// ════════════════════════════════════════════════════════
+function TabLinks() {
+  const [links, setLinks]       = useState<LinkRow[]>([]);
+  const [saving, setSaving]     = useState(false);
+  const [saved, setSaved]       = useState(false);
+  const [loading, setLoading]   = useState(true);
+
+  useEffect(() => {
+    supabase.from("academy_config_links").select("*").order("sort_order").then(({ data }) => {
+      setLinks((data as LinkRow[]) || []);
+      setLoading(false);
+    });
+  }, []);
+
+  const updateLink = (i: number, f: keyof LinkRow, v: string | number) =>
+    setLinks(prev => prev.map((l, idx) => idx === i ? { ...l, [f]: v } : l));
+
+  const addLink = () => setLinks(prev => [...prev, { title: "", url: "", sort_order: (prev[prev.length-1]?.sort_order || 0) + 1 }]);
+  const removeLink = (i: number) => setLinks(prev => prev.filter((_, idx) => idx !== i));
+
+  const handleSave = async () => {
+    setSaving(true);
+    await supabase.from("academy_config_links").delete().neq("sort_order", -999);
+    const rows = links.filter(l => l.title.trim()).map((l, i) => ({
+      title: l.title.trim(), url: l.url, sort_order: i + 1
+    }));
+    if (rows.length) await supabase.from("academy_config_links").insert(rows);
+    setSaving(false); setSaved(true); setTimeout(() => setSaved(false), 2500);
+  };
+
+  if (loading) return <div className={styles.loading}>Memuat data link...</div>;
+
+  return (
+    <>
+      <div className={styles.panelHeader}>
+        <div>
+          <h2><Link2 size={20} /> Link Pendukung</h2>
+          <p>Kelola tautan tambahan yang muncul di halaman Link Pendukung learner</p>
+        </div>
+        <div className={styles.rowActions}>
+          {saved && <span className={styles.savedMsg}><CheckCircle size={14} /> Tersimpan</span>}
+          <button className={styles.saveBtn} onClick={handleSave} disabled={saving}>
+            <Save size={14} /> {saving ? "Menyimpan..." : "Simpan Semua"}
+          </button>
+        </div>
+      </div>
+
+      <div className={styles.card}>
+        <div className={styles.cardTitle}><Link2 size={14} /> Daftar Link</div>
+        <p style={{ fontSize: 12, color: "#64748b", marginTop: -8 }}>Link yang ditambahkan akan muncul otomatis di halaman Link Pendukung dashboard learner.</p>
+        <div className={styles.listCard}>
+          <div className={styles.listRow} style={{ gridTemplateColumns: "24px 1fr 1fr auto", background: "#f8fafc" }}>
+            <span className={styles.listNum}>#</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8" }}>JUDUL / DESKRIPSI</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8" }}>URL</span>
+            <span />
+          </div>
+          {links.map((link, i) => (
+            <div key={i} className={`${styles.listRow} ${styles.listRowParticipant}`}>
+              <span className={styles.listNum}>{i + 1}</span>
+              <input className={styles.input} value={link.title} onChange={e => updateLink(i, "title", e.target.value)} placeholder="Judul link..." style={{ fontSize: 12.5 }} />
+              <input className={styles.input} value={link.url} onChange={e => updateLink(i, "url", e.target.value)} placeholder="https://..." style={{ fontSize: 12.5 }} />
+              <button className={styles.deleteBtn} onClick={() => removeLink(i)}><Trash2 size={14} /></button>
+            </div>
+          ))}
+        </div>
+        <button className={styles.addRowBtn} onClick={addLink}><Plus size={14} /> Tambah Link</button>
       </div>
     </>
   );

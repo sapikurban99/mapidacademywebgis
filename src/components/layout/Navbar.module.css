@@ -1,19 +1,22 @@
 .navbar {
-  height: 70px;
+  min-height: 70px;
   background: #fff;
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 40px;
+  padding: 12px 40px;
   position: sticky;
   top: 0;
   z-index: 100;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .logoContainer {
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
 }
 
 .logo {
@@ -24,33 +27,71 @@
 }
 
 .logo h1 {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
   margin: 0;
   line-height: 1;
 }
 
 .logo span {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--muted);
   letter-spacing: 1px;
-  margin-top: 4px;
+  margin-top: 3px;
+}
+
+.navLinks {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 10px;
+  transition: all 0.15s;
+  white-space: nowrap;
 }
 
 .leaderboardLink {
-  font-size: 14px;
-  font-weight: 600;
   color: var(--primary);
-  text-decoration: none;
-  transition: color 0.2s ease;
+  background: #f1f5f9;
+  border: 1px solid var(--border);
 }
 
 .leaderboardLink:hover {
-  color: var(--accent);
+  background: #e2e8f0;
 }
 
-@media (max-width: 768px) {
+.adminLink {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.06);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+.adminLink:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+@media (max-width: 640px) {
   .navbar {
-    padding: 0 20px;
+    padding: 10px 16px;
+  }
+  .logo h1 {
+    font-size: 18px;
+  }
+  .logo span {
+    display: none;
+  }
+  .navLink {
+    font-size: 12px;
+    padding: 6px 12px;
   }
 }

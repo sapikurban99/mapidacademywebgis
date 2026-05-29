@@ -12,11 +12,11 @@ export default function Navbar() {
         </Link>
       </div>
       <div className={styles.navLinks}>
-        <Link href="/leaderboard" className={styles.leaderboardLink}>
-          <Trophy size={15} style={{ marginRight: "6px", verticalAlign: "middle" }} /> Scoreboard
+        <Link href="/leaderboard" className={`${styles.navLink} ${styles.leaderboardLink}`}>
+          <Trophy size={14} /> Scoreboard
         </Link>
-        <Link href="/admin?tab=overview" className={styles.leaderboardLink} style={{ background: "rgba(239,68,68,0.08)", color: "#ef4444" }}>
-          <Settings size={15} style={{ marginRight: "6px", verticalAlign: "middle" }} /> Admin
+        <Link href="/admin?tab=overview" className={`${styles.navLink} ${styles.adminLink}`}>
+          <Settings size={14} /> Admin
         </Link>
       </div>
     </nav>
