@@ -33,10 +33,10 @@ export async function POST(request: Request) {
       .setExpirationTime("24h")
       .sign(JWT_SECRET);
 
-    const response = NextResponse.json({ success: true });
+    const response = NextResponse.json({ success: true, token });
     response.cookies.set("admin_token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
       sameSite: "lax",
       maxAge: 60 * 60 * 24,
       path: "/",
